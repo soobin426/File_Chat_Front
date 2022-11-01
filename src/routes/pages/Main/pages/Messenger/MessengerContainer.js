@@ -1,0 +1,278 @@
+/**
+ *
+ *
+ *
+ */
+
+import React, { useEffect, useState, useCallback } from 'react';
+import MessengerPresenter from './MessengerPresenter';
+import { io } from 'socket.io-client';
+import { getCookie, MessageAlert } from 'utils';
+import { API } from 'api';
+// import {
+//   initSocketConnection,
+//   disconnectSocket,
+//   sendSocketMessage,
+//   socketInfoReceived,
+// } from 'utils/SocketIO';
+
+// 나가기 아이디
+
+/**
+ * [Component] Messenger Container
+ * --
+ */
+const MessengerContainer = (props) => {
+  /* ====== STATE ====== */
+  // const [currentRoom] = useState('Home');
+  const [rName] = useState('Derek');
+  const [roomList, setRoomList] = useState([]);
+  const [userList, setUserList] = useState([]);
+  const [currentRoom, setCurrentRoom] = useState(null);
+  const [currentRoomInfo, setCurrentRoomInfo] = useState(null);
+  // 유저정보
+  const userInfo = JSON.parse(getCookie('userInfo'));
+
+  let leaveRoomTemp = null;
+  let userId = getCookie('userId');
+  let socket;
+  const initSocketConnection = (uid = null) => {
+    if (socket) return true;
+    socket = io('http://localhost:3333', {
+      transports: ['websocket'],
+      query: `userId=${uid ? uid : userId}`,
+    });
+    socket.connect();
+    return null;
+  };
+  initSocketConnection();
+
+  /* ====== FUNCTIONS ====== */
+  /**
+   * 방 가입 함수
+   * --
+   */
+  const handleChangeRoom = (key = null) => {
+    const filtered = roomList.filter((item) => item.room_id === key)[0];
+    setCurrentRoom(key);
+    setCurrentRoomInfo(key ? filtered : null);
+  };
+
+  /**
+   * 방 가입 함수
+   * --
+   */
+  const handleJoinRoom = () => {};
+
+  /**
+   * 방 생성 함수
+   * --
+   */
+  const handleCreateRoom = async (roomData, inviteList) => {
+    try {
+      const {
+        room_name,
+        room_storage,
+        room_ftpid,
+        room_ftppw,
+        room_ftpip,
+        room_description,
+      } = roomData;
+
+      // 기본정보 예외처리
+      if (!room_name || inviteList.length <= 0) {
+        return MessageAlert.warning('모든 정보를 입력해주세요');
+      }
+
+      // ftp예외처리
+      if (room_storage && (!room_ftpid || !room_ftppw || !room_ftpip)) {
+        return MessageAlert.warning('FTP사용 시 입력정보는 필수입니다.');
+      }
+
+      const members = [];
+      for (let i of inviteList) {
+        members.push(Number(i));
+      }
+      // 모델
+      const newData = {
+        room_id: currentRoom,
+        room_name,
+        room_storage,
+        room_ftpid,
+        room_ftppw,
+        room_ftpip,
+        room_description,
+        members,
+        user_id: Number(userInfo.user_id),
+      };
+
+      // API Call
+      const { status, data } = await API.createRoom(newData);
+      if (status !== 200) {
+        throw { message: '채팅방을 생성할 수 없습니다. 다시 시도해주세요' };
+      }
+
+      setRoomList((prev) => [...prev, data]);
+      MessageAlert.success('생성되었습니다');
+      return true;
+    } catch (err) {
+      console.log('[handleCreateRoom] Error: ', err);
+      MessageAlert.error(err.message);
+      return false;
+    }
+  };
+
+  /**
+   * 방 리스트 조회
+   * --
+   */
+  const handleGetRoomList = useCallback(() => {
+    socket.emit('RoomList', rName);
+  }, [rName]);
+
+  /**
+   * 방 리스트 조회
+   * --
+   */
+  const handleSendMessage = (msg = '') => {
+    if (msg) socket.emit('chat', currentRoom, userInfo.user_id, msg);
+  };
+
+  /**
+   * 채팅방 상세조회
+   * --
+   */
+  const handleGetRoom = useCallback(async () => {
+    try {
+      // API Call
+      const { status, data } = await API.getRoom(currentRoom);
+      // 예외처리
+      if (status !== 200) {
+        throw {
+          message: '채팅방 데이터를 불러올 수 없습니다. 다시 시도해주세요',
+        };
+      }
+      // 연결정보
+      const { room_id } = data;
+      const { user_id, user_name } = userInfo;
+
+      // 나가기 할 아이디가 있을경우
+      if (leaveRoomTemp !== null && leaveRoomTemp !== currentRoom) {
+        // 소켓아웃
+        socket.emit('leaveRoom', leaveRoomTemp, user_name);
+      }
+      leaveRoomTemp = room_id;
+      // 소켓연결
+      socket.emit('joinRoom', room_id, user_name);
+      socket.emit('login', {
+        room_id,
+        user_name,
+        user_id,
+      });
+      // Set state
+      setCurrentRoomInfo(data);
+    } catch (err) {
+      console.log('[handleGetRoom] Error: ', err);
+      MessageAlert.error(err.message);
+    }
+  }, [currentRoom]);
+
+  /* ====== VARIABLES ====== */
+
+  /* ====== HOOKS ====== */
+  /**
+   * 소켓 초기설정
+   * --
+   */
+  useEffect(() => {
+    const call = () => {
+      socket.on('RoomList', (data) => {
+        setRoomList(data);
+      });
+      socket.on('creatRoom', (data) => {
+        console.log('[creatRoom] data: ', data);
+      });
+      socket.on('userList', (data) => {
+        console.log('[userList] data: ', data);
+      });
+      socket.on('inviteUser', (data) => {
+        console.log('[inviteUser] data: ', data);
+      });
+      socket.on('chat', (data, dd) => {
+        console.log('[chat] data: ', data);
+        console.log('[chat] dd: ', dd);
+      });
+      socket.on('leaveRoom', (data) => {
+        console.log('[leaveRoom] data: ', data);
+      });
+      socket.on('joinRoom', (data) => {
+        console.log('[joinRoom] data: ', data);
+      });
+    };
+
+    if (!userId) {
+      userId = getCookie('userId');
+    }
+    !socket && initSocketConnection(userId);
+    call();
+    handleGetRoomList();
+
+    return () => {
+      if (socket == null || socket.connected === false) {
+        return;
+      }
+      socket.disconnect();
+      socket = undefined;
+    };
+  }, [handleGetRoomList]);
+
+  /**
+   * 채팅방 상세 조회
+   * --
+   */
+  useEffect(() => {
+    currentRoom && handleGetRoom();
+  }, [handleGetRoom]);
+
+  /**
+   * 유저목록 조회
+   * --
+   */
+  useEffect(() => {
+    const call = async () => {
+      try {
+        const { status, data } = await API.getUsers();
+        if (status !== 200) {
+          return MessageAlert.error('유저정보를 불러올 수 없습니다.');
+        }
+        setUserList(data);
+      } catch (err) {
+        MessageAlert.error('X');
+      }
+    };
+
+    call();
+  }, []);
+
+  /* ====== RENDER ====== */
+  return (
+    <MessengerPresenter
+      // States
+      roomList={roomList.sort((a, b) =>
+        a.room_id < b.room_id ? -1 : a.room_id > b.room_id ? 1 : 0
+      )}
+      userList={userList}
+      currentRoom={currentRoom}
+      currentRoomInfo={currentRoomInfo}
+      userInfo={userInfo}
+      // Functions
+      onJoinRoom={handleJoinRoom}
+      onChangeRoom={handleChangeRoom}
+      onCreateRoom={handleCreateRoom}
+      onGetRoomList={handleGetRoomList}
+      onSendMessage={handleSendMessage}
+    />
+  );
+};
+
+export default MessengerContainer;
