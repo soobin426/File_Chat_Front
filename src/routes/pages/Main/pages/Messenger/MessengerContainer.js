@@ -30,10 +30,13 @@ const MessengerContainer = (props) => {
   const [userList, setUserList] = useState([]);
   const [currentRoom, setCurrentRoom] = useState(null);
   const [currentRoomInfo, setCurrentRoomInfo] = useState(null);
+  const [chatList, setChatList] = useState([]);
   // 유저정보
   const userInfo = JSON.parse(getCookie('userInfo'));
 
+  // let leaveRoomTemp = null;
   let leaveRoomTemp = null;
+
   let userId = getCookie('userId');
   let socket;
   const initSocketConnection = (uid = null) => {
@@ -143,9 +146,12 @@ const MessengerContainer = (props) => {
    * --
    */
   const handleGetRoom = useCallback(async () => {
+    console.log('[CHANGE ROOM] currentRoom: ', currentRoom);
+
     try {
       // API Call
       const { status, data } = await API.getRoom(currentRoom);
+      const chatResult = await API.getChats(currentRoom);
       // 예외처리
       if (status !== 200) {
         throw {
@@ -157,11 +163,14 @@ const MessengerContainer = (props) => {
       const { user_id, user_name } = userInfo;
 
       // 나가기 할 아이디가 있을경우
-      if (leaveRoomTemp !== null && leaveRoomTemp !== currentRoom) {
-        // 소켓아웃
-        socket.emit('leaveRoom', leaveRoomTemp, user_name);
-      }
-      leaveRoomTemp = room_id;
+      // if (leaveRoomTemp !== null) {
+      //   // 소켓아웃
+      //   socket.emit('leaveRoom', leaveRoomTemp, user_name);
+      // }
+      // console.log('leaveRoomTemp: ', leaveRoomTemp);
+      // socket.emit('leaveRoom', leaveRoomTemp, user_name);
+      // leaveRoomTemp = currentRoom;
+      // socket.emit('leaveRoom', currentRoom, user_name);
       // 소켓연결
       socket.emit('joinRoom', room_id, user_name);
       socket.emit('login', {
@@ -170,6 +179,7 @@ const MessengerContainer = (props) => {
         user_id,
       });
       // Set state
+      setChatList(chatResult.data);
       setCurrentRoomInfo(data);
     } catch (err) {
       console.log('[handleGetRoom] Error: ', err);
@@ -198,15 +208,22 @@ const MessengerContainer = (props) => {
       socket.on('inviteUser', (data) => {
         console.log('[inviteUser] data: ', data);
       });
-      socket.on('chat', (data, dd) => {
+      socket.on('chat', (data) => {
         console.log('[chat] data: ', data);
-        console.log('[chat] dd: ', dd);
+        setChatList((prev) => [...prev, data]);
       });
+      // socket.on('chat', (data, dd) => {
+      //   console.log('[chat] data: ', data);
+      //   console.log('[chat] dd: ', dd);
+      // });
       socket.on('leaveRoom', (data) => {
         console.log('[leaveRoom] data: ', data);
       });
       socket.on('joinRoom', (data) => {
         console.log('[joinRoom] data: ', data);
+      });
+      socket.on('login', (data) => {
+        console.log('[login] data: ', data);
       });
     };
 
@@ -265,6 +282,7 @@ const MessengerContainer = (props) => {
       currentRoom={currentRoom}
       currentRoomInfo={currentRoomInfo}
       userInfo={userInfo}
+      chatList={chatList}
       // Functions
       onJoinRoom={handleJoinRoom}
       onChangeRoom={handleChangeRoom}

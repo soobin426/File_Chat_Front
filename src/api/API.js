@@ -20,6 +20,12 @@ const API = {
    * 채팅방 상세조회
    * --
    */
+  getChats: (roomId) => $http.get(parameterToPath(`/chat/:roomId`, { roomId })),
+
+  /**
+   * 채팅방 상세조회
+   * --
+   */
   getUsers: () => $http.get('/users'),
 
   /**

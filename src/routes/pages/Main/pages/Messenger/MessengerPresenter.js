@@ -25,6 +25,7 @@ export default function MessengerPresenter(props) {
     currentRoom,
     currentRoomInfo,
     userInfo,
+    chatList,
     onJoinRoom,
     onGetRoomList,
     onChangeRoom,
@@ -62,6 +63,7 @@ export default function MessengerPresenter(props) {
           />
           {/* 채팅창 */}
           <MessageContainer
+            chatList={chatList}
             currentRoomInfo={currentRoomInfo}
             isOpenSidePanel={isOpenSidePanel}
             onOpenSidePanel={() => setIsOpenSidePanel(!isOpenSidePanel)}
