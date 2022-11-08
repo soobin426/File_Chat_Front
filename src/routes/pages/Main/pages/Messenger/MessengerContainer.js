@@ -15,6 +15,19 @@ import { API } from 'api';
 //   sendSocketMessage,
 //   socketInfoReceived,
 // } from 'utils/SocketIO';
+let userId = getCookie('userId');
+let socket;
+const initSocketConnection = (uid = null) => {
+  if (socket) return true;
+  socket = io('http://localhost:3333', {
+    transports: ['websocket'],
+    query: `userId=${uid ? uid : userId}`,
+  });
+  console.log('socket', socket);
+  socket.connect();
+  return null;
+};
+initSocketConnection();
 
 // 나가기 아이디
 
@@ -36,19 +49,6 @@ const MessengerContainer = (props) => {
 
   // let leaveRoomTemp = null;
   let leaveRoomTemp = null;
-
-  let userId = getCookie('userId');
-  let socket;
-  const initSocketConnection = (uid = null) => {
-    if (socket) return true;
-    socket = io('http://localhost:3333', {
-      transports: ['websocket'],
-      query: `userId=${uid ? uid : userId}`,
-    });
-    socket.connect();
-    return null;
-  };
-  initSocketConnection();
 
   /* ====== FUNCTIONS ====== */
   /**
