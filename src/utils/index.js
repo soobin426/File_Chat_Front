@@ -5,6 +5,9 @@ export { default as ApiManager } from './ApiManager';
 export { default as MessageAlert } from './MessageAlert';
 export { default as TypeManager } from './TypeManager';
 
+// export const PUBLIC_URL = 'http://localhost:3000';
+export const PUBLIC_URL = 'localhost';
+
 export const getCookie = (name, options = null) => {
   const value = window.document.cookie.match(
     '(^|;) ?' + name + '=([^;]*)(;|$)'
@@ -20,14 +23,16 @@ export const setCookie = (name, value, expires = 1, callback = false) => {
 };
 
 // clearCookie
-export const deleteCookie = (name, { path, domain }) => {
+// export const deleteCookie = (name, { path, domain }) => {
+export const deleteCookie = (name) => {
   if (getCookie(name)) {
-    window.document.cookie =
-      name +
-      '=' +
-      (path ? ';path=' + path : '') +
-      (domain ? ';domain=' + domain : '') +
-      ';expires=Thu, 01 Jan 1970 00:00:01 GMT';
+    window.document.cookie = `${name}=;path=/;domain=${PUBLIC_URL};expires=Thu, 01 Jan 1970 00:00:01 GMT;`;
+    // window.document.cookie =
+    //   name +
+    //   '=' +
+    //   (path ? ';path=' + path : '') +
+    //   (domain ? ';domain=' + domain : '') +
+    //   ';expires=Thu, 01 Jan 1970 00:00:01 GMT';
   }
 };
 

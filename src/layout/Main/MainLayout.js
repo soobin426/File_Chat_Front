@@ -15,7 +15,7 @@ import {
   LogoutOutlined,
 } from '@ant-design/icons';
 import { Link, useHistory, useLocation } from 'react-router-dom';
-import { setCookie } from 'utils';
+import { setCookie, deleteCookie, getCookie } from 'utils';
 import { useSelector } from 'react-redux';
 
 const { Header, Content } = Layout;
@@ -32,12 +32,12 @@ const getRouter = (path) => {
  *
  */
 const MainLayout = ({ children }) => {
-  /* Router */
+  /* ===== Router ===== */
   const history = useHistory();
   const location = useLocation();
   const { pathname } = location;
 
-  /* State */
+  /* ===== State ===== */
   const userInfo = useSelector((state) => state.userInfo.userInfo);
   // const [userInfo, setUserInfo] = useState(undefined);
   const [thisTab, setThisTab] = useState('dashboard');
@@ -55,22 +55,21 @@ const MainLayout = ({ children }) => {
     },
   ]);
 
-  /* Hooks */
+  /* ===== Hooks ===== */
   useEffect(() => {
     setThisTab(getRouter(pathname));
   }, [pathname]);
 
-  /* Functions */
+  /* ===== Functions ===== */
   /**
    * 로그아웃
    * --
    */
-  const logout = async (e) => {
-    e.preventDefault();
-    await setCookie('token', null);
-    await setCookie('userInfo', null);
-    await setCookie('userId', null);
-    history.replace('/signin');
+  const logout = async () => {
+    deleteCookie('token');
+    deleteCookie('userInfo');
+    deleteCookie('userId');
+    window.location.href = '/signin';
   };
 
   /**
@@ -91,19 +90,6 @@ const MainLayout = ({ children }) => {
         return true;
     }
   };
-
-  /**
-   * 라이브 드랍다운메뉴
-   */
-  const dropdownMenus = (
-    <Menu size="large">
-      <Menu.Item size="large">
-        <Link to="/create/group">
-          <AppstoreAddOutlined /> 채팅방 생성
-        </Link>
-      </Menu.Item>
-    </Menu>
-  );
 
   /**
    * 유저 드랍다운메뉴
@@ -133,17 +119,33 @@ const MainLayout = ({ children }) => {
           <UserOutlined /> 마이페이지
         </Link>
       </Menu.Item>
-      <Menu.Item size="large">
-        <Link to="/" onClick={logout}>
-          <LogoutOutlined /> 로그아웃
-        </Link>
+      <Menu.Item size="large" onClick={logout}>
+        <LogoutOutlined /> 로그아웃
       </Menu.Item>
     </Menu>
   );
 
   const useHeader = handleUseHeader(pathname);
 
-  /* RENDER */
+  /* ===== Hooks ===== */
+  useEffect(() => {
+    const call = () => {
+      const userInfo = getCookie('userInfo');
+      if (userInfo) {
+        if (pathname === '/' || pathname === '/signin') {
+          history.push('/messenger');
+        }
+      } else {
+        alert('logout');
+        if (pathname !== '/signin') {
+          history.push('/signin');
+        }
+      }
+    };
+    call();
+  }, []);
+
+  /* ===== RENDER ===== */
   return (
     <Layout className="main-layout" style={{ height: '100%' }}>
       {useHeader === true && (
@@ -167,26 +169,6 @@ const MainLayout = ({ children }) => {
             mode="horizontal"
             style={{ width: '20%', textAlign: 'right', border: 'none' }}
           >
-            <Menu.Item className="header-menu-item">
-              <Dropdown
-                overlay={dropdownMenus}
-                placement="bottomRight"
-                trigger="click"
-              >
-                <Button
-                  size="large"
-                  type="primary"
-                  id="accountBtn"
-                  icon={<PlusOutlined />}
-                  shape="roundSpuare"
-                  style={{
-                    marginRight: 0,
-                    background: '#39c379',
-                    border: 'none',
-                  }}
-                />
-              </Dropdown>
-            </Menu.Item>
             <Menu.Item className="header-menu-item">
               <Space>
                 <Dropdown

@@ -23,6 +23,9 @@ import ChatList from './ChatList';
 import { ModalLayout, Col, Row } from 'components';
 import { Button, Form, Input, Switch, Select, Empty } from 'antd';
 import {} from 'components';
+import { useEffect } from 'react';
+import { MessageAlert } from 'utils';
+import { useHistory } from 'react-router-dom';
 
 const { Option } = Select;
 const styles = {
@@ -53,11 +56,14 @@ const ChatSidebar = ({
   onCreateRoom,
 }) => {
   /* ===== INITIAL ===== */
+  const history = useHistory();
   const [form] = Form.useForm();
 
   /* ===== STATE ===== */
   const [createModal, setCreateModal] = useState(false);
-  const [inviteList, setInviteList] = useState([String(userInfo.user_id)]);
+  const [inviteList, setInviteList] = useState(
+    userInfo ? [String(userInfo.user_id)] : null
+  );
   const [data, setData] = useState(initData);
 
   /* ===== FUNCTIONS ===== */
@@ -95,6 +101,14 @@ const ChatSidebar = ({
       setInviteList([]);
     }
   };
+
+  /* ===== Hooks ===== */
+  useEffect(() => {
+    if (!userInfo) {
+      MessageAlert.warning('로그인 후 이용가능합니다.');
+      history.replace('/signin');
+    }
+  }, [userInfo]);
 
   /* ===== RENDER ===== */
   return (
@@ -184,7 +198,7 @@ const ChatSidebar = ({
                 width: '100%',
               }}
               placeholder="Please select"
-              defaultValue={[String(userInfo.user_id)]}
+              defaultValue={userInfo ? [String(userInfo.user_id)] : []}
               onChange={handleChangeInviteList}
             >
               {userList.map((item) => (
@@ -248,6 +262,7 @@ const ChatSidebar = ({
 };
 
 ChatSidebar.defaultProps = {
+  userInfo: null,
   userList: [],
   onCreateRoom: () => {},
 };

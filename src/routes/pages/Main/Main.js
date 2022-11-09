@@ -15,17 +15,25 @@ import {
   Conclusion,
   ConferenceModify,
 } from './pages';
+import { useEffect } from 'react';
+
+// import SignIn from '../SignIn';
 
 /**
  * [Component] Main
  * --
  */
 const Main = () => {
+  /* ===== Hooks ===== */
+  // useEffect(()=> {},[]);
+
   /* ===== Render ===== */
   return (
     <Switch>
       {/* <Route path="/" exact component={Messenger}></Route> */}
       <MainLayout>
+        {/* 로그인 */}
+        {/* <Route path="/signin" exact component={SignIn}></Route> */}
         {/* 메신저 */}
         <Route path="/messenger" exact component={Messenger}></Route>
 
