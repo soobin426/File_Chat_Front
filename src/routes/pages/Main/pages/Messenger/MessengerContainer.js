@@ -9,12 +9,16 @@ import MessengerPresenter from './MessengerPresenter';
 import { io } from 'socket.io-client';
 import { getCookie, MessageAlert } from 'utils';
 import { API } from 'api';
+import { useHistory, useLocation } from 'react-router-dom';
+import queryString from 'query-string';
+
 // import {
 //   initSocketConnection,
 //   disconnectSocket,
 //   sendSocketMessage,
 //   socketInfoReceived,
 // } from 'utils/SocketIO';
+
 let userId = getCookie('userId');
 let socket;
 const initSocketConnection = (uid = null) => {
@@ -36,7 +40,12 @@ initSocketConnection();
  * --
  */
 const MessengerContainer = (props) => {
-  /* ====== STATE ====== */
+  /* ====== Initial ====== */
+  const history = useHistory();
+  const { search } = useLocation();
+  const { roomId } = queryString.parse(history.location.search);
+
+  /* ====== State ====== */
   // const [currentRoom] = useState('Home');
   const [rName] = useState('Derek');
   const [roomList, setRoomList] = useState([]);
@@ -52,14 +61,21 @@ const MessengerContainer = (props) => {
 
   /* ====== FUNCTIONS ====== */
   /**
-   * 방 가입 함수
+   * 채팅방 선택
    * --
    */
   const handleChangeRoom = (key = null) => {
-    const filtered = roomList.filter((item) => item.room_id === key)[0];
-    setCurrentRoom(key);
-    setCurrentRoomInfo(key ? filtered : null);
+    history.push(`/messenger${key && `?roomId=${key}`}`);
   };
+
+  useEffect(() => {
+    const call = (key = null) => {
+      const filtered = roomList.filter((item) => item.room_id === key)[0];
+      setCurrentRoom(key);
+      setCurrentRoomInfo(key ? filtered : null);
+    };
+    roomId && call(roomId);
+  }, [roomId]);
 
   /**
    * 방 가입 함수
@@ -305,6 +321,7 @@ const MessengerContainer = (props) => {
     call();
   }, []);
 
+  // console.log('currentRoom : ', currentRoom);
   /* ====== RENDER ====== */
   return (
     <MessengerPresenter

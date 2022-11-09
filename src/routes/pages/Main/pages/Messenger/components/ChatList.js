@@ -42,6 +42,9 @@ const avatarIco =
 const ChatList = ({ roomList, currentRoom, onChangeRoom }) => {
   /* ===== STATE ===== */
 
+  console.log('currentRoom: ', currentRoom);
+
+  const id = Number(currentRoom);
   /* ===== RENDER ===== */
   return (
     <ConversationList>
@@ -49,13 +52,13 @@ const ChatList = ({ roomList, currentRoom, onChangeRoom }) => {
         <Conversation
           key={`chat_${item.room_id}`}
           onClick={() =>
-            onChangeRoom(item.room_id === currentRoom ? null : item.room_id)
+            onChangeRoom(item.room_id === id ? null : item.room_id)
           }
           {...{
             ...item,
             name: item.room_name,
             info: item.room_description,
-            active: item.room_id === currentRoom,
+            active: item.room_id === id,
           }}
         >
           <Avatar src={avatarIco} name={item.room_name} status={item.status} />
