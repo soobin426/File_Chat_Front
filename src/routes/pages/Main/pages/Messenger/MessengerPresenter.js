@@ -26,12 +26,14 @@ export default function MessengerPresenter(props) {
     currentRoomInfo,
     userInfo,
     chatList,
+    userId,
     onJoinRoom,
     onGetRoomList,
     onChangeRoom,
     onSetCommand,
     onCreateRoom,
     onSendMessage,
+    onSendFile,
   } = props;
 
   /* ====== STATE ====== */
@@ -69,6 +71,8 @@ export default function MessengerPresenter(props) {
             onOpenSidePanel={() => setIsOpenSidePanel(!isOpenSidePanel)}
             onSetCommand={onSetCommand}
             onSendMessage={onSendMessage}
+            onSendFile={onSendFile}
+            userId={userId}
           />
           {/* 사이드패널 */}
           {isOpenSidePanel && (

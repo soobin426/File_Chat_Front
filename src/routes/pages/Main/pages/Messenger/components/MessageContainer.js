@@ -30,11 +30,23 @@ const MessageContainer = ({
   currentRoomInfo,
   isOpenSidePanel,
   onOpenSidePanel,
+  userId,
   onSetCommand,
   onSendMessage,
+  onSendFile,
 }) => {
   /* ===== STATE ===== */
   const [messageInputValue, setMessageInputValue] = useState('');
+  //파일정보
+  const [fileInfo, setFileInfo] = useState('');
+  const [dragLoad, setDragLoad] = useState(false);
+  console.log(chatList);
+  console.log(userId);
+  const styles = {
+    mychat: { float: 'right' },
+    otherchat: { float: 'left', width: '100%' },
+    //style 추가 가능
+  };
 
   /* ===== Functions ===== */
   const handleSendMessage = () => {
@@ -42,10 +54,57 @@ const MessageContainer = ({
     setMessageInputValue('');
   };
 
+  const handleChangeFile = () => {
+    console.log(document.getElementById('fileName').value);
+    document.getElementById('fileName').click();
+  };
+
   /* ===== HOOKS ===== */
   useEffect(() => {
     currentRoomInfo && console.log(currentRoomInfo.room_name);
   }, [currentRoomInfo]);
+  useEffect(() => {
+    onSendFile(fileInfo);
+    console.log('fileInfo:', fileInfo);
+  }, [fileInfo]);
+  useEffect(() => {
+    if (dragLoad) {
+      const uploadBox = document.querySelector('.uploadBox');
+      /* 박스 안에 Drag 들어왔을 때 */
+      uploadBox.addEventListener('dragenter', function (e) {
+        console.log('dragenter');
+      });
+
+      /* 박스 안에 Drag를 하고 있을 때 */
+      uploadBox.addEventListener('dragover', function (e) {
+        e.preventDefault();
+        console.log('dragover');
+
+        this.style.backgroundColor = '#6ea9d7';
+      });
+
+      /* 박스 밖으로 Drag가 나갈 때 */
+      uploadBox.addEventListener('dragleave', function (e) {
+        console.log('dragleave');
+
+        this.style.backgroundColor = 'white';
+      });
+
+      /* 박스 안에서 Drag를 Drop했을 때 */
+      uploadBox.addEventListener('drop', function (e) {
+        e.preventDefault();
+
+        console.log('drop');
+        this.style.backgroundColor = 'white';
+
+        const data = e.dataTransfer.files[0];
+        onSendFile(data);
+      });
+      console.log('dragLoad : ', dragLoad);
+    } else {
+      console.log('dragLoad : ', dragLoad);
+    }
+  }, [dragLoad]);
 
   /* ===== RENDER ===== */
   if (!currentRoomInfo)
@@ -84,31 +143,74 @@ const MessageContainer = ({
                 </Button>
               )}
             </div>
+
+            <div>
+              <form
+                id="fileForm"
+                className="form-inline"
+                style={{ display: 'none' }}
+              >
+                <div className="form-group sendfile">
+                  <label htmlFor="msgForm">File: </label>
+                  <input
+                    type="file"
+                    id="fileName"
+                    onChange={() =>
+                      setFileInfo(document.getElementById('fileName').files[0])
+                    }
+                  />
+                  <button type="submit" className="btn btn-primary">
+                    File Upload
+                  </button>
+                </div>
+              </form>
+            </div>
           </ConversationHeader.Actions>
         </ConversationHeader>
-
         <MessageList
-        // typingIndicator={
-        //   <TypingIndicator
-        //     style={{ height: 35 }}
-        //     content="김성훈님이 입력중입니다."
-        //   />
-        // }
+          // typingIndicator={
+          //   <TypingIndicator
+          //     style={{ height: 35 }}
+          //     content="김성훈님이 입력중입니다."
+          //   />
+          // }
+          className="uploadBox"
+          onLoad={() => setDragLoad(true)}
         >
           <MessageSeparator content="Saturday, 30 November 2019" />
 
           {chatList.map((chat) => (
-            <Message
-              model={{
-                message: chat.chat_msg,
-                sentTime: '15 mins ago',
-                sender: 'Zoe',
-                direction: 'incoming',
-                position: 'single',
+            <div
+              key={chat.chat_id}
+              style={{
+                width: '100%',
+                height: '60px',
+                display: 'flex',
+                alignItems: 'center',
               }}
             >
-              <Avatar src={avatarIco} name="Zoe" />
-            </Message>
+              {Number(userId) === chat.user_id ? (
+                <div style={{ flex: 1 }}></div>
+              ) : (
+                <></>
+              )}
+              <Message
+                model={{
+                  message: chat.chat_msg,
+                  sentTime: '15 mins ago',
+                  sender: 'Zoe',
+                  direction: 'incoming',
+                  position: 'single',
+                }}
+                style={
+                  Number(userId) === chat.user_id
+                    ? styles.mychat
+                    : styles.otherchat
+                }
+              >
+                <Avatar src={avatarIco} name="Zoe" />
+              </Message>
+            </div>
           ))}
         </MessageList>
         <MessageInput
@@ -116,6 +218,7 @@ const MessageContainer = ({
           value={messageInputValue}
           onChange={(val) => setMessageInputValue(val)}
           onSend={handleSendMessage}
+          onAttachClick={handleChangeFile}
         />
       </ChatContainer>
     </>

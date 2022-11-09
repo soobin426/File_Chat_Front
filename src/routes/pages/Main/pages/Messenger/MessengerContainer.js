@@ -187,6 +187,36 @@ const MessengerContainer = (props) => {
     }
   }, [currentRoom]);
 
+  /**
+   * 파일 업로드
+   * --
+   */
+  const handleSendFile = (fileInfo) => {
+    const files = fileInfo;
+    const maxSize = 5 * 1024 * 1024;
+    const fileSize = files.size;
+    console.log(files);
+    if (fileSize > maxSize) {
+      alert('첨부파일 사이즈는 5MB 이내로 등록 가능합니다.');
+      return false;
+    } else {
+      // 서버로 파일을 전송한다.
+      files &&
+        socket.emit(
+          'upload',
+          files,
+          files.name,
+          files.size,
+          files.type,
+          currentRoom,
+          userInfo.user_id,
+          (status) => {
+            console.log(status);
+          }
+        );
+    }
+  };
+
   /* ====== VARIABLES ====== */
 
   /* ====== HOOKS ====== */
@@ -209,6 +239,7 @@ const MessengerContainer = (props) => {
         console.log('[inviteUser] data: ', data);
       });
       socket.on('chat', (data) => {
+        console.log(chatList);
         console.log('[chat] data: ', data);
         setChatList((prev) => [...prev, data]);
       });
@@ -221,6 +252,9 @@ const MessengerContainer = (props) => {
       });
       socket.on('joinRoom', (data) => {
         console.log('[joinRoom] data: ', data);
+      });
+      socket.on('login', (data) => {
+        console.log('[login] data: ', data);
       });
       socket.on('login', (data) => {
         console.log('[login] data: ', data);
@@ -279,6 +313,7 @@ const MessengerContainer = (props) => {
         a.room_id < b.room_id ? -1 : a.room_id > b.room_id ? 1 : 0
       )}
       userList={userList}
+      userId={userId}
       currentRoom={currentRoom}
       currentRoomInfo={currentRoomInfo}
       userInfo={userInfo}
@@ -289,6 +324,7 @@ const MessengerContainer = (props) => {
       onCreateRoom={handleCreateRoom}
       onGetRoomList={handleGetRoomList}
       onSendMessage={handleSendMessage}
+      onSendFile={handleSendFile}
     />
   );
 };
