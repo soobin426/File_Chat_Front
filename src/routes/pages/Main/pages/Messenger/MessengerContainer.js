@@ -99,7 +99,8 @@ const MessengerContainer = (props) => {
   useEffect(() => {
     const call = (key = null) => {
       const filtered = roomList.filter((item) => item.room_id === key)[0];
-      setCurrentRoom(key);
+      //Chat roomId 오류 수정
+      setCurrentRoom(Number(key));
       setCurrentRoomInfo(key ? filtered : null);
     };
     call(roomId);
@@ -202,6 +203,8 @@ const MessengerContainer = (props) => {
       // API Call
       const { status, data } = await API.getRoom(currentRoom);
       const chatResult = await API.getChats(currentRoom);
+      // // 파일정보 리스트
+      // const fileResult = await API.getFiles(currentRoom);
       // 예외처리
       if (status !== 200) {
         throw {
@@ -243,11 +246,11 @@ const MessengerContainer = (props) => {
    */
   const handleSendFile = (fileInfo) => {
     const files = fileInfo;
-    const maxSize = 5 * 1024 * 1024;
+    const maxSize = 10000000;
     const fileSize = files.size;
     console.log(files);
     if (fileSize > maxSize) {
-      alert('첨부파일 사이즈는 5MB 이내로 등록 가능합니다.');
+      alert('첨부파일 사이즈는 1MB 이내로 등록 가능합니다.');
       return false;
     } else {
       // 서버로 파일을 전송한다.
@@ -291,6 +294,22 @@ const MessengerContainer = (props) => {
     }
   };
 
+  /*
+   * 시간 변환
+   * --
+   */
+  const onChangeDate = (date) => {
+    const data = new Date(date);
+    const timestamp = date && date.split('T');
+    // console.log(typeof data, 'data:', data);
+    const dateTime = `${data.getFullYear()}년 ${
+      data.getMonth() + 1
+    }월 ${data.getDate()}일 ${
+      timestamp && timestamp.length > 1 ? data.getUTCHours() : data.getHours()
+    }:${data.getMinutes()}`;
+    return dateTime;
+  };
+
   /* ====== VARIABLES ====== */
 
   /* ====== HOOKS ====== */
@@ -313,7 +332,7 @@ const MessengerContainer = (props) => {
         console.log('[inviteUser] data: ', data);
       });
       socket.on('chat', (data) => {
-        console.log(chatList);
+        console.log('chatList:', chatList);
         console.log('[chat] data: ', data);
         setChatList((prev) => [...prev, data]);
       });
@@ -418,6 +437,7 @@ const MessengerContainer = (props) => {
       onSendMessage={handleSendMessage}
       onSendFile={handleSendFile}
       onUpdateFTP={handleUpdateFTP}
+      onChangeDate={onChangeDate}
     />
   );
 };

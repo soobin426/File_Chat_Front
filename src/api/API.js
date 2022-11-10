@@ -41,6 +41,13 @@ const API = {
   getInvites: (userId) => $http.get('/invite', { userId }),
 
   /**
+   * 파일 목록조회
+   * --
+   */
+  getFiles: (roomId) =>
+    $http.get(parameterToPath(`/files/:roomId`, { roomId })),
+
+  /**
    * 회원가입
    * --
    */

@@ -27,6 +27,7 @@ const avatarIco = `
  */
 const MessageContainer = ({
   chatList,
+  userList,
   currentRoomInfo,
   isOpenSidePanel,
   onOpenSidePanel,
@@ -34,6 +35,7 @@ const MessageContainer = ({
   onSetCommand,
   onSendMessage,
   onSendFile,
+  onChangeDate,
 }) => {
   /* ===== STATE ===== */
   const [messageInputValue, setMessageInputValue] = useState('');
@@ -43,8 +45,8 @@ const MessageContainer = ({
   console.log(chatList);
   console.log(userId);
   const styles = {
-    mychat: { float: 'right' },
-    otherchat: { float: 'left', width: '100%' },
+    mychat: { float: 'right', alignItems: 'center' },
+    otherchat: { float: 'left', width: '100%', alignItems: 'center' },
     //style 추가 가능
   };
 
@@ -65,7 +67,7 @@ const MessageContainer = ({
   }, [currentRoomInfo]);
   useEffect(() => {
     onSendFile(fileInfo);
-    console.log('fileInfo:', fileInfo);
+    // console.log('fileInfo:', fileInfo);
   }, [fileInfo]);
   useEffect(() => {
     if (dragLoad) {
@@ -184,7 +186,7 @@ const MessageContainer = ({
               key={chat.chat_id}
               style={{
                 width: '100%',
-                height: '60px',
+                height: '90px',
                 display: 'flex',
                 alignItems: 'center',
               }}
@@ -199,7 +201,8 @@ const MessageContainer = ({
                   message: chat.chat_msg,
                   sentTime: '15 mins ago',
                   sender: 'Zoe',
-                  direction: 'incoming',
+                  direction:
+                    Number(userId) === chat.user_id ? 'outgoing' : 'incoming',
                   position: 'single',
                 }}
                 style={
@@ -208,7 +211,22 @@ const MessageContainer = ({
                     : styles.otherchat
                 }
               >
-                <Avatar src={avatarIco} name="Zoe" />
+                <Message.Header
+                  sender={
+                    userList.filter((item) => item.user_id === chat.user_id)[0]
+                      .user_name
+                  }
+                />
+                {Number(userId) === chat.user_id ? (
+                  <></>
+                ) : (
+                  <Avatar src={avatarIco} name="Zoe" />
+                )}
+                {Number(userId) === chat.user_id ? (
+                  <Message.Footer sentTime={onChangeDate(chat.chat_date)} />
+                ) : (
+                  <Message.Footer sender={onChangeDate(chat.chat_date)} />
+                )}
               </Message>
             </div>
           ))}

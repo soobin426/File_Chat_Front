@@ -10,6 +10,9 @@ import { Row, Col, ModalLayout, Title } from 'components';
 import { UserOutlined } from '@ant-design/icons';
 import { useEffect } from 'react';
 import { MessageAlert } from 'utils';
+import JPEG_ICON from 'assets/images/JPEG.png';
+import PNG_ICON from 'assets/images/PNG.png';
+import PDF_ICON from 'assets/images/PDF.png';
 
 const { Option } = Select;
 
@@ -80,7 +83,7 @@ const SidePanel = ({ currentRoomInfo, userList, onUpdateFTP }) => {
   };
 
   /* ===== Variables ===== */
-  // const { invites, files } = currentRoomInfo;
+  const { invites, files } = currentRoomInfo;
 
   /* ===== Hooks ===== */
   useEffect(() => {
@@ -181,16 +184,24 @@ const SidePanel = ({ currentRoomInfo, userList, onUpdateFTP }) => {
           // === 파일목록 === //
           <>
             <Row>
-              {currentRoomInfo &&
-                currentRoomInfo.files.map((file) => (
-                  <Col x={12} style={{ padding: 5 }} key={file.key}>
+              {files &&
+                files.map((file) => (
+                  <Col x={12} style={{ padding: 5 }} key={file.file_id}>
                     <Card
                       hoverable
                       cover={
                         <img
                           alt="example"
-                          src="https://wallpaperaccess.com/full/147476.jpg"
-                          width={'100%'}
+                          src={
+                            file.file_exp.split('/')[1] === 'pdf'
+                              ? PDF_ICON
+                              : file.file_exp.split('/')[1] === 'jpeg'
+                              ? JPEG_ICON
+                              : file.file_exp.split('/')[1] === 'png'
+                              ? PNG_ICON
+                              : null
+                          }
+                          width={'90%'}
                           height={82}
                         />
                       }
@@ -199,14 +210,14 @@ const SidePanel = ({ currentRoomInfo, userList, onUpdateFTP }) => {
                       <Card.Meta
                         title={
                           <span style={{ fontSize: '0.85em' }}>
-                            {file.name}
+                            {file.file_name}
                           </span>
                         }
                         description={
                           <>
-                            {(file.size / 1024 / 1024).toFixed(2)}MB
+                            {(file.file_size / 1024 / 1024).toFixed(2)}MB
                             <br />
-                            {file.extension}
+                            {file.file_exp}
                           </>
                         }
                         style={{ lineHeight: 1.05, fontSize: '0.85em' }}

@@ -35,11 +35,11 @@ export default function MessengerPresenter(props) {
     onSendMessage,
     onSendFile,
     onUpdateFTP,
+    onChangeDate,
   } = props;
 
   /* ====== STATE ====== */
   const [isOpenSidePanel, setIsOpenSidePanel] = useState(false);
-
   /* ====== VARIABLES ====== */
 
   /* ====== HOOKS ====== */
@@ -67,13 +67,15 @@ export default function MessengerPresenter(props) {
           {/* 채팅창 */}
           <MessageContainer
             chatList={chatList}
+            userList={userList}
+            userId={userId}
             currentRoomInfo={currentRoomInfo}
             isOpenSidePanel={isOpenSidePanel}
             onOpenSidePanel={() => setIsOpenSidePanel(!isOpenSidePanel)}
             onSetCommand={onSetCommand}
             onSendMessage={onSendMessage}
             onSendFile={onSendFile}
-            userId={userId}
+            onChangeDate={onChangeDate}
           />
           {/* 사이드패널 */}
           {isOpenSidePanel && (
