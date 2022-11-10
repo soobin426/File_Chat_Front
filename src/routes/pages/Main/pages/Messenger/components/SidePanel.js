@@ -83,7 +83,7 @@ const SidePanel = ({ currentRoomInfo, userList, onUpdateFTP }) => {
   };
 
   /* ===== Variables ===== */
-  const { invites, files } = currentRoomInfo;
+  const { files } = currentRoomInfo ? currentRoomInfo : [];
 
   /* ===== Hooks ===== */
   useEffect(() => {

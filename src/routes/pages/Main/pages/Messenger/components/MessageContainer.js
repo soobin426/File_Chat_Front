@@ -49,7 +49,6 @@ const MessageContainer = ({
     otherchat: { float: 'left', width: '100%', alignItems: 'center' },
     //style 추가 가능
   };
-
   /* ===== Functions ===== */
   const handleSendMessage = () => {
     if (messageInputValue) onSendMessage(messageInputValue);
@@ -70,7 +69,7 @@ const MessageContainer = ({
     // console.log('fileInfo:', fileInfo);
   }, [fileInfo]);
   useEffect(() => {
-    if (dragLoad) {
+    if (dragLoad && document.querySelector('.uploadBox')) {
       const uploadBox = document.querySelector('.uploadBox');
       /* 박스 안에 Drag 들어왔을 때 */
       uploadBox.addEventListener('dragenter', function (e) {
@@ -107,7 +106,10 @@ const MessageContainer = ({
       console.log('dragLoad : ', dragLoad);
     }
   }, [dragLoad]);
-
+  useEffect(() => {
+    console.log('dragLoad : ', dragLoad);
+    setDragLoad(true);
+  }, []);
   /* ===== RENDER ===== */
   if (!currentRoomInfo)
     return (

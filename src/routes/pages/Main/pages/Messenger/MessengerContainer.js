@@ -146,7 +146,7 @@ const MessengerContainer = (props) => {
       }
       // 모델
       const newData = {
-        room_id: currentRoom,
+        room_id: null,
         room_name,
         room_storage,
         room_ftpid,
@@ -181,7 +181,7 @@ const MessengerContainer = (props) => {
    * --
    */
   const handleGetRoomList = useCallback(() => {
-    socket.emit('RoomList', rName);
+    socket.emit('RoomList', userInfo.user_id, rName);
   }, [rName]);
 
   /**
@@ -332,7 +332,6 @@ const MessengerContainer = (props) => {
         console.log('[inviteUser] data: ', data);
       });
       socket.on('chat', (data) => {
-        console.log('chatList:', chatList);
         console.log('[chat] data: ', data);
         setChatList((prev) => [...prev, data]);
       });
@@ -392,7 +391,7 @@ const MessengerContainer = (props) => {
         Socket = new SocketManager(userId);
         Socket.onConnet(userId);
         socket = Socket.getSocket();
-        socket.emit('RoomList', rName);
+        socket.emit('RoomList', userInfo.user_id, rName);
 
         const { status, data } = await API.getUsers();
         if (status !== 200) {
