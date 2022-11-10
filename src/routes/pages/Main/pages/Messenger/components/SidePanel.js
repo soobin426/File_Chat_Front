@@ -9,6 +9,9 @@ import { Tabs, Card, Avatar, Select, Button, Empty, Form, Input } from 'antd';
 import { Row, Col, ModalLayout, Title } from 'components';
 import { UserOutlined } from '@ant-design/icons';
 import { useEffect } from 'react';
+import JPEG_ICON from 'assets/images/JPEG.png';
+import PNG_ICON from 'assets/images/PNG.png';
+import PDF_ICON from 'assets/images/PDF.png';
 
 const { Option } = Select;
 
@@ -162,36 +165,47 @@ const SidePanel = ({ currentRoomInfo, userList }) => {
           // === 파일목록 === //
           <>
             <Row>
-              {files.map((file) => (
-                <Col x={12} style={{ padding: 5 }} key={file.key}>
-                  <Card
-                    hoverable
-                    cover={
-                      <img
-                        alt="example"
-                        src="https://wallpaperaccess.com/full/147476.jpg"
-                        width={'100%'}
-                        height={82}
+              {files &&
+                files.map((file) => (
+                  <Col x={12} style={{ padding: 5 }} key={file.file_id}>
+                    <Card
+                      hoverable
+                      cover={
+                        <img
+                          alt="example"
+                          src={
+                            file.file_exp.split('/')[1] === 'pdf'
+                              ? PDF_ICON
+                              : file.file_exp.split('/')[1] === 'jpeg'
+                              ? JPEG_ICON
+                              : file.file_exp.split('/')[1] === 'png'
+                              ? PNG_ICON
+                              : null
+                          }
+                          width={'90%'}
+                          height={82}
+                        />
+                      }
+                      bodyStyle={{ padding: '15px 10px' }}
+                    >
+                      <Card.Meta
+                        title={
+                          <span style={{ fontSize: '0.85em' }}>
+                            {file.file_name}
+                          </span>
+                        }
+                        description={
+                          <>
+                            {(file.file_size / 1024 / 1024).toFixed(2)}MB
+                            <br />
+                            {file.file_exp}
+                          </>
+                        }
+                        style={{ lineHeight: 1.05, fontSize: '0.85em' }}
                       />
-                    }
-                    bodyStyle={{ padding: '15px 10px' }}
-                  >
-                    <Card.Meta
-                      title={
-                        <span style={{ fontSize: '0.85em' }}>{file.name}</span>
-                      }
-                      description={
-                        <>
-                          {(file.size / 1024 / 1024).toFixed(2)}MB
-                          <br />
-                          {file.extension}
-                        </>
-                      }
-                      style={{ lineHeight: 1.05, fontSize: '0.85em' }}
-                    />
-                  </Card>
-                </Col>
-              ))}
+                    </Card>
+                  </Col>
+                ))}
             </Row>
           </>
         )}
