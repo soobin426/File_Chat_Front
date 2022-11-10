@@ -34,6 +34,7 @@ export default function MessengerPresenter(props) {
     onCreateRoom,
     onSendMessage,
     onSendFile,
+    onUpdateFTP,
   } = props;
 
   /* ====== STATE ====== */
@@ -76,7 +77,11 @@ export default function MessengerPresenter(props) {
           />
           {/* 사이드패널 */}
           {isOpenSidePanel && (
-            <SidePanel currentRoomInfo={currentRoomInfo} userList={userList} />
+            <SidePanel
+              currentRoomInfo={currentRoomInfo}
+              userList={userList}
+              onUpdateFTP={onUpdateFTP}
+            />
           )}
         </MainContainer>
       </div>

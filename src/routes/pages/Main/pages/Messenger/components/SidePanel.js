@@ -9,6 +9,7 @@ import { Tabs, Card, Avatar, Select, Button, Empty, Form, Input } from 'antd';
 import { Row, Col, ModalLayout, Title } from 'components';
 import { UserOutlined } from '@ant-design/icons';
 import { useEffect } from 'react';
+import { MessageAlert } from 'utils';
 
 const { Option } = Select;
 
@@ -16,7 +17,7 @@ const { Option } = Select;
  * [Component] 사이드 패널
  * --
  */
-const SidePanel = ({ currentRoomInfo, userList }) => {
+const SidePanel = ({ currentRoomInfo, userList, onUpdateFTP }) => {
   const [form] = Form.useForm();
   /* ===== STATE ===== */
   const [inviteList, setInviteList] = useState([]);
@@ -25,38 +26,12 @@ const SidePanel = ({ currentRoomInfo, userList }) => {
   const [modifyModal, setModifyModal] = useState(false);
   const [currentTab, setCurrentTab] = useState('t1');
   const [defaultMemebers, setDefaultMembers] = useState([]);
-  // const [files] = useState([
-  //   {
-  //     key: 'file_001',
-  //     name: '디자인시안_01',
-  //     size: 100000,
-  //     extension: 'png',
-  //   },
-  //   {
-  //     key: 'file_002',
-  //     name: '디자인시안_02',
-  //     size: 100000,
-  //     extension: 'png',
-  //   },
-  //   {
-  //     key: 'file_003',
-  //     name: '디자인시안_03',
-  //     size: 100000,
-  //     extension: 'png',
-  //   },
-  //   {
-  //     key: 'file_004',
-  //     name: '디자인시안_04',
-  //     size: 100000,
-  //     extension: 'png',
-  //   },
-  //   {
-  //     key: 'file_005',
-  //     name: '디자인시안_05',
-  //     size: 100000,
-  //     extension: 'png',
-  //   },
-  // ]);
+  const [ftpInfo, setFtpInfo] = useState({
+    room_ftpip: '',
+    room_ftppath: '',
+    room_ftpid: '',
+    room_ftppw: '',
+  });
 
   /* ===== Functions ===== */
   /**
@@ -66,14 +41,53 @@ const SidePanel = ({ currentRoomInfo, userList }) => {
     setInviteList(value);
   };
 
+  /**
+   * FTP정보 변경 함수
+   * --
+   */
+  const handleChangeFtp = ({ target }) => {
+    const { name, value } = target;
+    setFtpInfo((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
+
+  /**
+   * 저장 함수
+   * --
+   */
+  const handleSave = async () => {
+    try {
+      const newData = {
+        room_ftpip: ftpInfo.room_ftpip,
+        room_ftppath: ftpInfo.room_ftppath,
+        room_ftpid: ftpInfo.room_ftpid,
+        room_ftppw: ftpInfo.room_ftppw,
+      };
+      const result = await onUpdateFTP(newData);
+      if (result) {
+        setModifyModal(false);
+      }
+    } catch (err) {
+      console.log('[SidePanel][handleSave] Error: ', err);
+      MessageAlert.error(err.message);
+    }
+  };
+
   /* ===== Variables ===== */
-  const { invites, files } = currentRoomInfo;
+  // const { invites, files } = currentRoomInfo;
 
   /* ===== Hooks ===== */
-  // useEffect(() => {
-  //   const newData = invites.filter((i) => userList.includes(i.user.user_id));
-  //   console.log('newData: ', newData);
-  // }, []);
+  useEffect(() => {
+    currentRoomInfo &&
+      setFtpInfo({
+        room_ftpip: currentRoomInfo.room_ftpip,
+        room_ftppath: currentRoomInfo.room_ftppath,
+        room_ftpid: currentRoomInfo.room_ftpid,
+        room_ftppw: currentRoomInfo.room_ftppw,
+      });
+  }, [currentRoomInfo]);
 
   /* ===== Render ===== */
   return (
@@ -104,6 +118,7 @@ const SidePanel = ({ currentRoomInfo, userList }) => {
             <ExpansionPanel open title="FTP 연결정보">
               {/* <p>저장폴더: /Users/gimseonghun/Projects </p> */}
               <p>FTP서버: {currentRoomInfo && currentRoomInfo.room_ftpip}</p>
+              <p>저장경로: {currentRoomInfo && currentRoomInfo.room_ftppath}</p>
               <p>ID: {currentRoomInfo && currentRoomInfo.room_ftpid}</p>
               <p>PW: {currentRoomInfo && currentRoomInfo.room_ftppw}</p>
               <p>
@@ -132,8 +147,8 @@ const SidePanel = ({ currentRoomInfo, userList }) => {
                     + Invite
                   </Card>
                 </Col>
-                {invites &&
-                  invites.map((item) => (
+                {currentRoomInfo &&
+                  currentRoomInfo.invites.map((item) => (
                     <Col
                       x={12}
                       style={{ padding: 3 }}
@@ -162,36 +177,39 @@ const SidePanel = ({ currentRoomInfo, userList }) => {
           // === 파일목록 === //
           <>
             <Row>
-              {files.map((file) => (
-                <Col x={12} style={{ padding: 5 }} key={file.key}>
-                  <Card
-                    hoverable
-                    cover={
-                      <img
-                        alt="example"
-                        src="https://wallpaperaccess.com/full/147476.jpg"
-                        width={'100%'}
-                        height={82}
+              {currentRoomInfo &&
+                currentRoomInfo.files.map((file) => (
+                  <Col x={12} style={{ padding: 5 }} key={file.key}>
+                    <Card
+                      hoverable
+                      cover={
+                        <img
+                          alt="example"
+                          src="https://wallpaperaccess.com/full/147476.jpg"
+                          width={'100%'}
+                          height={82}
+                        />
+                      }
+                      bodyStyle={{ padding: '15px 10px' }}
+                    >
+                      <Card.Meta
+                        title={
+                          <span style={{ fontSize: '0.85em' }}>
+                            {file.name}
+                          </span>
+                        }
+                        description={
+                          <>
+                            {(file.size / 1024 / 1024).toFixed(2)}MB
+                            <br />
+                            {file.extension}
+                          </>
+                        }
+                        style={{ lineHeight: 1.05, fontSize: '0.85em' }}
                       />
-                    }
-                    bodyStyle={{ padding: '15px 10px' }}
-                  >
-                    <Card.Meta
-                      title={
-                        <span style={{ fontSize: '0.85em' }}>{file.name}</span>
-                      }
-                      description={
-                        <>
-                          {(file.size / 1024 / 1024).toFixed(2)}MB
-                          <br />
-                          {file.extension}
-                        </>
-                      }
-                      style={{ lineHeight: 1.05, fontSize: '0.85em' }}
-                    />
-                  </Card>
-                </Col>
-              ))}
+                    </Card>
+                  </Col>
+                ))}
             </Row>
           </>
         )}
@@ -225,7 +243,7 @@ const SidePanel = ({ currentRoomInfo, userList }) => {
               size={'large'}
               type="primary"
               style={{ width: '69%' }}
-              onClick={() => setModifyModal(false)}
+              onClick={handleSave}
             >
               수정 완료
             </Button>
@@ -233,17 +251,37 @@ const SidePanel = ({ currentRoomInfo, userList }) => {
         }
       >
         <Form form={form} layout="vertical">
-          <Form.Item label="저장폴더">
-            <Input placeholder="input placeholder" />
-          </Form.Item>
           <Form.Item label="FTP서버">
-            <Input placeholder="input placeholder" />
+            <Input
+              placeholder="아이피를 입력해주세요"
+              name="room_ftpip"
+              value={ftpInfo.room_ftpip}
+              onChange={handleChangeFtp}
+            />
+          </Form.Item>
+          <Form.Item label="저장경로">
+            <Input
+              placeholder="저장경로를 입력해주세요"
+              name="room_ftppath"
+              value={ftpInfo.room_ftppath}
+              onChange={handleChangeFtp}
+            />
           </Form.Item>
           <Form.Item label="ID">
-            <Input placeholder="input placeholder" />
+            <Input
+              placeholder="아이디를 입력해주세요"
+              name="room_ftpid"
+              value={ftpInfo.room_ftpid}
+              onChange={handleChangeFtp}
+            />
           </Form.Item>
           <Form.Item label="PW">
-            <Input placeholder="input placeholder" />
+            <Input
+              placeholder="패스워드를 입력해주세요"
+              name="room_ftppw"
+              value={ftpInfo.room_ftppw}
+              onChange={handleChangeFtp}
+            />
           </Form.Item>
         </Form>
       </ModalLayout>

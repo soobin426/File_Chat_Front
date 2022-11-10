@@ -65,7 +65,7 @@ const MessengerContainer = (props) => {
    * --
    */
   const handleChangeRoom = (key = null) => {
-    history.push(`/messenger${key && `?roomId=${key}`}`);
+    history.push(`/messenger${key ? `?roomId=${key}` : ''}`);
   };
 
   useEffect(() => {
@@ -74,7 +74,7 @@ const MessengerContainer = (props) => {
       setCurrentRoom(key);
       setCurrentRoomInfo(key ? filtered : null);
     };
-    roomId && call(roomId);
+    call(roomId);
   }, [roomId]);
 
   /**
@@ -233,6 +233,30 @@ const MessengerContainer = (props) => {
     }
   };
 
+  /**
+   * 저장 함수
+   * --
+   */
+  const handleUpdateFTP = async (newData) => {
+    try {
+      const { room_id } = currentRoomInfo;
+      const { status, message } = await API.updateRoom(room_id, newData);
+      if (status !== 200) {
+        MessageAlert.error(message);
+        return false;
+      }
+      setCurrentRoomInfo((prev) => ({
+        ...prev,
+        ...newData,
+      }));
+      MessageAlert.success('저장되었습니다.');
+      return true;
+    } catch (err) {
+      MessageAlert.error(err.message);
+      return false;
+    }
+  };
+
   /* ====== VARIABLES ====== */
 
   /* ====== HOOKS ====== */
@@ -342,6 +366,7 @@ const MessengerContainer = (props) => {
       onGetRoomList={handleGetRoomList}
       onSendMessage={handleSendMessage}
       onSendFile={handleSendFile}
+      onUpdateFTP={handleUpdateFTP}
     />
   );
 };

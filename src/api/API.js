@@ -9,6 +9,12 @@ const API = {
    * --
    */
   createRoom: (body) => $http.post(`/rooms`, body),
+  /**
+   * 채팅방 수정
+   * --
+   */
+  updateRoom: (roomId, body) =>
+    $http.put(parameterToPath(`/rooms/:roomId`, { roomId }), body),
 
   /**
    * 채팅방 상세조회
