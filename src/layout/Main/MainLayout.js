@@ -138,7 +138,7 @@ const MainLayout = ({ children }) => {
       } else {
         alert('logout');
         if (pathname !== '/signin') {
-          history.push('/signin');
+          window.location.href = '/signin';
         }
       }
     };

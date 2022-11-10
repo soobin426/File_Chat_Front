@@ -27,10 +27,12 @@ const SidePanel = ({ currentRoomInfo, userList, onUpdateFTP }) => {
   const [currentTab, setCurrentTab] = useState('t1');
   const [defaultMemebers, setDefaultMembers] = useState([]);
   const [ftpInfo, setFtpInfo] = useState({
+    room_ftptype: 'sftp',
     room_ftpip: '',
     room_ftppath: '',
     room_ftpid: '',
     room_ftppw: '',
+    room_ftpport: 21,
   });
 
   /* ===== Functions ===== */
@@ -60,10 +62,12 @@ const SidePanel = ({ currentRoomInfo, userList, onUpdateFTP }) => {
   const handleSave = async () => {
     try {
       const newData = {
+        room_ftptype: ftpInfo.room_ftptype,
         room_ftpip: ftpInfo.room_ftpip,
         room_ftppath: ftpInfo.room_ftppath,
         room_ftpid: ftpInfo.room_ftpid,
         room_ftppw: ftpInfo.room_ftppw,
+        room_ftpport: ftpInfo.room_ftppw,
       };
       const result = await onUpdateFTP(newData);
       if (result) {
@@ -119,8 +123,8 @@ const SidePanel = ({ currentRoomInfo, userList, onUpdateFTP }) => {
               {/* <p>저장폴더: /Users/gimseonghun/Projects </p> */}
               <p>FTP서버: {currentRoomInfo && currentRoomInfo.room_ftpip}</p>
               <p>저장경로: {currentRoomInfo && currentRoomInfo.room_ftppath}</p>
-              <p>ID: {currentRoomInfo && currentRoomInfo.room_ftpid}</p>
-              <p>PW: {currentRoomInfo && currentRoomInfo.room_ftppw}</p>
+              <p>계정: {currentRoomInfo && currentRoomInfo.room_ftpid}</p>
+              <p>패스워드: {currentRoomInfo && currentRoomInfo.room_ftppw}</p>
               <p>
                 <Button block size="small" onClick={() => setModifyModal(true)}>
                   편집하기
@@ -245,18 +249,36 @@ const SidePanel = ({ currentRoomInfo, userList, onUpdateFTP }) => {
               style={{ width: '69%' }}
               onClick={handleSave}
             >
-              수정 완료
+              수정 완료2
             </Button>
           </div>
         }
       >
         <Form form={form} layout="vertical">
           <Form.Item label="FTP서버">
+            <Select
+              defaultValue="sftp"
+              value={ftpInfo.room_ftptype}
+              options={[
+                { value: 'sftp', label: 'SFTP' },
+                { value: 'ftp', label: 'FTP' },
+              ]}
+              onChange={(value) =>
+                handleChangeFtp({ target: { name: 'room_ftptype', value } })
+              }
+              style={{
+                width: '29%',
+              }}
+            />
             <Input
               placeholder="아이피를 입력해주세요"
               name="room_ftpip"
               value={ftpInfo.room_ftpip}
               onChange={handleChangeFtp}
+              style={{
+                width: '70%',
+                marginLeft: '1%',
+              }}
             />
           </Form.Item>
           <Form.Item label="저장경로">
@@ -267,7 +289,7 @@ const SidePanel = ({ currentRoomInfo, userList, onUpdateFTP }) => {
               onChange={handleChangeFtp}
             />
           </Form.Item>
-          <Form.Item label="ID">
+          <Form.Item label="계정">
             <Input
               placeholder="아이디를 입력해주세요"
               name="room_ftpid"

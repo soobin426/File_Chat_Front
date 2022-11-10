@@ -18,28 +18,56 @@ import queryString from 'query-string';
 //   sendSocketMessage,
 //   socketInfoReceived,
 // } from 'utils/SocketIO';
-
 let userId = getCookie('userId');
-let socket;
-const initSocketConnection = (uid = null) => {
-  if (socket) return true;
-  socket = io('http://localhost:3333', {
-    transports: ['websocket'],
-    query: `userId=${uid ? uid : userId}`,
-  });
-  console.log('socket', socket);
-  socket.connect();
-  return null;
-};
-initSocketConnection();
+/**
+ * [Class]
+ * --
+ */
+class SocketManager {
+  /**
+   *
+   */
+  constructor(uid) {
+    if (!SocketManager.instance) {
+      if (this.socket) return true;
+      this.socket = io('http://localhost:3333', {
+        transports: ['websocket'],
+        query: `userId=${uid ? uid : userId}`,
+      });
+      console.log(1111111111111111);
+      this.socket.connect();
 
-// 나가기 아이디
+      SocketManager.instance = this;
+    }
+    return SocketManager.instance;
+  }
+
+  /**
+   *
+   */
+  onConnet = () => {
+    console.log(2222222222222222);
+    this.socket.connect();
+  };
+
+  /**
+   *
+   */
+  getSocket = () => {
+    return this.socket;
+  };
+}
+
+let Socket = null;
+let socket = null;
 
 /**
  * [Component] Messenger Container
  * --
  */
 const MessengerContainer = (props) => {
+  Socket = new SocketManager(userId);
+  socket = Socket.getSocket();
   /* ====== Initial ====== */
   const history = useHistory();
   const { search } = useLocation();
@@ -95,6 +123,9 @@ const MessengerContainer = (props) => {
         room_ftpid,
         room_ftppw,
         room_ftpip,
+        room_ftppath,
+        room_ftpport,
+        room_ftptype,
         room_description,
       } = roomData;
 
@@ -120,6 +151,9 @@ const MessengerContainer = (props) => {
         room_ftpid,
         room_ftppw,
         room_ftpip,
+        room_ftppath: room_ftppath ? room_ftppath : '/',
+        room_ftpport: room_ftpport ? room_ftpport : 21,
+        room_ftptype: room_ftptype ? room_ftptype : 'ftp',
         room_description,
         members,
         user_id: Number(userInfo.user_id),
@@ -304,9 +338,13 @@ const MessengerContainer = (props) => {
     if (!userId) {
       userId = getCookie('userId');
     }
-    !socket && initSocketConnection(userId);
-    call();
-    handleGetRoomList();
+
+    if (socket) {
+      call();
+      handleGetRoomList();
+    }
+
+    // !socket && initSocketConnection(userId);
 
     return () => {
       if (socket == null || socket.connected === false) {
@@ -332,6 +370,11 @@ const MessengerContainer = (props) => {
   useEffect(() => {
     const call = async () => {
       try {
+        Socket = new SocketManager(userId);
+        Socket.onConnet(userId);
+        socket = Socket.getSocket();
+        socket.emit('RoomList', rName);
+
         const { status, data } = await API.getUsers();
         if (status !== 200) {
           return MessageAlert.error('유저정보를 불러올 수 없습니다.');
@@ -341,8 +384,16 @@ const MessengerContainer = (props) => {
         MessageAlert.error('X');
       }
     };
-
     call();
+
+    if (!socket) {
+      call();
+    }
+
+    return () => {
+      Socket = null;
+      socket = null;
+    };
   }, []);
 
   // console.log('currentRoom : ', currentRoom);

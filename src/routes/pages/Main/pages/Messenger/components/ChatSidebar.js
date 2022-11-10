@@ -40,6 +40,8 @@ const initData = {
   room_ftpid: '',
   room_ftppw: '',
   room_ftpip: '',
+  room_ftpport: 21,
+  room_ftptype: 'ftp',
   room_description: '',
 };
 
@@ -227,15 +229,44 @@ const ChatSidebar = ({
             layout="vertical"
             style={{ padding: 8, background: '#f1f1f1' }}
           >
+            {/*  */}
             <Form.Item label="FTP서버" style={styles.formItem}>
+              <Select
+                defaultValue="ftp"
+                value={data.room_ftptype}
+                options={[
+                  { value: 'sftp', label: 'SFTP' },
+                  { value: 'ftp', label: 'FTP' },
+                ]}
+                onChange={(value) =>
+                  handleChange({ target: { name: 'room_ftptype', value } })
+                }
+                style={{
+                  width: '20%',
+                }}
+              />
               <Input
                 name="room_ftpip"
                 placeholder="FTP 주소를 입력해주세요"
                 value={data.room_ftpip}
                 onChange={handleChange}
+                style={{
+                  width: '79%',
+                  marginLeft: '1%',
+                }}
               />
             </Form.Item>
-            <Form.Item label="ID" style={styles.formItem}>
+            {/*  */}
+            <Form.Item label="저장경로" style={styles.formItem}>
+              <Input
+                name="room_ftppath"
+                placeholder="저장경로를 입력해주세요"
+                value={data.room_ftppath}
+                onChange={handleChange}
+              />
+            </Form.Item>
+            {/*  */}
+            <Form.Item label="계정" style={styles.formItem}>
               <Input
                 name="room_ftpid"
                 placeholder="FTP 아이디를 입력해주세요"
@@ -243,14 +274,24 @@ const ChatSidebar = ({
                 onChange={handleChange}
               />
             </Form.Item>
+            {/*  */}
             <Form.Item
-              label="PW"
+              label="패스워드"
               style={{ ...styles.formItem, marginBottom: 3 }}
             >
               <Input
                 name="room_ftppw"
                 placeholder="FTP 패스워드를 입력해주세요"
                 value={data.room_ftppw}
+                onChange={handleChange}
+              />
+            </Form.Item>
+            {/*  */}
+            <Form.Item label="포트" style={styles.formItem}>
+              <Input
+                name="room_ftpport"
+                placeholder="포트를 입력해주세요"
+                value={data.room_ftpport}
                 onChange={handleChange}
               />
             </Form.Item>
