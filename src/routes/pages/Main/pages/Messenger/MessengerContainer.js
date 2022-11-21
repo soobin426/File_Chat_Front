@@ -68,6 +68,7 @@ let socket = null;
 const MessengerContainer = (props) => {
   Socket = new SocketManager(userId);
   socket = Socket.getSocket();
+
   /* ====== Initial ====== */
   const history = useHistory();
   const { search } = useLocation();
@@ -319,6 +320,7 @@ const MessengerContainer = (props) => {
    */
   useEffect(() => {
     const call = () => {
+      console.log(1231231231231231);
       socket.on('RoomList', (data) => {
         setRoomList(data);
       });
@@ -348,9 +350,9 @@ const MessengerContainer = (props) => {
       socket.on('login', (data) => {
         console.log('[login] data: ', data);
       });
-      socket.on('login', (data) => {
-        console.log('[login] data: ', data);
-      });
+      // socket.on('login', (data) => {
+      //   console.log('[login] data: ', data);
+      // });
     };
 
     if (!userId) {
