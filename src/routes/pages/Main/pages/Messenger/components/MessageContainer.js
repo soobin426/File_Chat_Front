@@ -25,6 +25,7 @@ const avatarIco = `
  * [Component]
  * --
  */
+
 const MessageContainer = ({
   chatList,
   userList,
@@ -53,6 +54,13 @@ const MessageContainer = ({
   const handleSendMessage = () => {
     if (messageInputValue) onSendMessage(messageInputValue);
     setMessageInputValue('');
+  };
+
+  const handleOnLoad = () => {
+    console.log('ON----------------------------LOAD');
+    if (dragLoad === false) {
+      setDragLoad(true);
+    }
   };
 
   const handleChangeFile = () => {
@@ -101,15 +109,12 @@ const MessageContainer = ({
         const data = e.dataTransfer.files[0];
         onSendFile(data);
       });
-      console.log('dragLoad : ', dragLoad);
+      console.log('dragLoad2 : ', dragLoad);
     } else {
-      console.log('dragLoad : ', dragLoad);
+      console.log('dragLoad1 : ', dragLoad);
     }
   }, [dragLoad]);
-  useEffect(() => {
-    console.log('dragLoad : ', dragLoad);
-    setDragLoad(true);
-  }, []);
+
   /* ===== RENDER ===== */
   if (!currentRoomInfo)
     return (
@@ -171,67 +176,73 @@ const MessageContainer = ({
             </div>
           </ConversationHeader.Actions>
         </ConversationHeader>
-        <MessageList
-          // typingIndicator={
-          //   <TypingIndicator
-          //     style={{ height: 35 }}
-          //     content="김성훈님이 입력중입니다."
-          //   />
-          // }
-          className="uploadBox"
-          onLoad={() => setDragLoad(true)}
-        >
-          <MessageSeparator content="Saturday, 30 November 2019" />
 
-          {chatList.map((chat) => (
-            <div
-              key={chat.chat_id}
-              style={{
-                width: '100%',
-                height: '90px',
-                display: 'flex',
-                alignItems: 'center',
-              }}
-            >
-              {Number(userId) === chat.user_id ? (
-                <div style={{ flex: 1 }}></div>
-              ) : (
-                <></>
-              )}
-              <Message
-                model={{
-                  message: chat.chat_msg,
-                  sentTime: '15 mins ago',
-                  sender: 'Zoe',
-                  direction:
-                    Number(userId) === chat.user_id ? 'outgoing' : 'incoming',
-                  position: 'single',
+        <MessageList
+        // typingIndicator={
+        //   <TypingIndicator
+        //     style={{ height: 35 }}
+        //     content="김성훈님이 입력중입니다."
+        //   />
+        // }
+        >
+          <div
+            className="uploadBox"
+            onLoad={handleOnLoad()}
+            style={{ height: '100%' }}
+          >
+            <MessageSeparator content="Saturday, 30 November 2019" />
+
+            {chatList.map((chat) => (
+              <div
+                key={chat.chat_id}
+                style={{
+                  width: '100%',
+                  height: '90px',
+                  display: 'flex',
+                  alignItems: 'center',
                 }}
-                style={
-                  Number(userId) === chat.user_id
-                    ? styles.mychat
-                    : styles.otherchat
-                }
               >
-                <Message.Header
-                  sender={
-                    userList.filter((item) => item.user_id === chat.user_id)[0]
-                      .user_name
-                  }
-                />
                 {Number(userId) === chat.user_id ? (
+                  <div style={{ flex: 1 }}></div>
+                ) : (
                   <></>
-                ) : (
-                  <Avatar src={avatarIco} name="Zoe" />
                 )}
-                {Number(userId) === chat.user_id ? (
-                  <Message.Footer sentTime={onChangeDate(chat.chat_date)} />
-                ) : (
-                  <Message.Footer sender={onChangeDate(chat.chat_date)} />
-                )}
-              </Message>
-            </div>
-          ))}
+                <Message
+                  model={{
+                    message: chat.chat_msg,
+                    sentTime: '15 mins ago',
+                    sender: 'Zoe',
+                    direction:
+                      Number(userId) === chat.user_id ? 'outgoing' : 'incoming',
+                    position: 'single',
+                  }}
+                  style={
+                    Number(userId) === chat.user_id
+                      ? styles.mychat
+                      : styles.otherchat
+                  }
+                >
+                  <Message.Header
+                    sender={
+                      userList.filter(
+                        (item) => item.user_id === chat.user_id
+                      )[0].user_name
+                    }
+                  />
+                  {Number(userId) === chat.user_id ? (
+                    <></>
+                  ) : (
+                    <Avatar src={avatarIco} name="Zoe" />
+                  )}
+                  {Number(userId) === chat.user_id ? (
+                    <Message.Footer sentTime={onChangeDate(chat.chat_date)} />
+                  ) : (
+                    <Message.Footer sender={onChangeDate(chat.chat_date)} />
+                  )}
+                </Message>
+              </div>
+            ))}
+          </div>
         </MessageList>
         <MessageInput
           placeholder="Type message here"

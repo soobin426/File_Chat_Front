@@ -34,7 +34,7 @@ class SocketManager {
         transports: ['websocket'],
         query: `userId=${uid ? uid : userId}`,
       });
-      console.log(1111111111111111);
+      // console.log(1111111111111111);
       this.socket.connect();
 
       SocketManager.instance = this;
@@ -46,7 +46,7 @@ class SocketManager {
    *
    */
   onConnet = () => {
-    console.log(2222222222222222);
+    // console.log(2222222222222222);
     this.socket.connect();
   };
 
@@ -247,11 +247,11 @@ const MessengerContainer = (props) => {
    */
   const handleSendFile = (fileInfo) => {
     const files = fileInfo;
-    const maxSize = 10000000;
+    const maxSize = 99 * 1024 * 1024;
     const fileSize = files.size;
     console.log(files);
     if (fileSize > maxSize) {
-      alert('첨부파일 사이즈는 1MB 이내로 등록 가능합니다.');
+      alert('첨부파일 사이즈는 100MB 이내로 등록 가능합니다.');
       return false;
     } else {
       // 서버로 파일을 전송한다.
