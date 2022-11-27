@@ -8,14 +8,18 @@ import { useEffect, useState } from 'react';
 import { Layout, Menu, Button, Dropdown, Space, Typography } from 'antd';
 import {
   UserOutlined,
-  PlusOutlined,
-  AppstoreAddOutlined,
+  // PlusOutlined,
+  // AppstoreAddOutlined,
   UsergroupAddOutlined,
   SelectOutlined,
   LogoutOutlined,
 } from '@ant-design/icons';
 import { Link, useHistory, useLocation } from 'react-router-dom';
-import { setCookie, deleteCookie, getCookie } from 'utils';
+import {
+  // setCookie,
+  deleteCookie,
+  getCookie,
+} from 'utils';
 import { useSelector } from 'react-redux';
 
 const { Header, Content } = Layout;

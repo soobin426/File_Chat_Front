@@ -5,22 +5,110 @@
 
 import React, { useState } from 'react';
 import { Sidebar, ExpansionPanel } from '@chatscope/chat-ui-kit-react';
-import { Tabs, Card, Avatar, Select, Button, Empty, Form, Input } from 'antd';
+import { Tabs, Card, Avatar, Select, Button, Form, Input } from 'antd';
 import { Row, Col, ModalLayout, Title } from 'components';
-import { UserOutlined } from '@ant-design/icons';
+// import { UserOutlined } from '@ant-design/icons';
 import { useEffect } from 'react';
 import { MessageAlert } from 'utils';
-import JPEG_ICON from 'assets/images/JPEG.png';
-import PNG_ICON from 'assets/images/PNG.png';
-import PDF_ICON from 'assets/images/PDF.png';
+// import JPEG_ICON from 'assets/images/JPEG.png';
+// import PNG_ICON from 'assets/images/PNG.png';
+// import PDF_ICON from 'assets/images/PDF.png';
 
+import i_pdf from 'assets/icons/icon_pdf.png';
+import i_aac from 'assets/icons/icon_aac.png';
+import i_docx from 'assets/icons/icon_docx.png';
+import i_dmg from 'assets/icons/icon_dmg.png';
+import i_etc from 'assets/icons/icon_etc.png';
+import i_exe from 'assets/icons/icon_exe.png';
+import i_gif from 'assets/icons/icon_gif.png';
+import i_html from 'assets/icons/icon_html.png';
+import i_jpg from 'assets/icons/icon_jpg.png';
+import i_mp4 from 'assets/icons/icon_mp4.png';
+import i_png from 'assets/icons/icon_png.png';
+import i_ppt from 'assets/icons/icon_ppt.png';
+import i_psd from 'assets/icons/icon_psd.png';
+import i_svg from 'assets/icons/icon_svg.png';
+import i_xlsx from 'assets/icons/icon_xlsx.png';
+import i_zip from 'assets/icons/icon_zip.png';
+
+const icons = {
+  pdf: {
+    src: i_pdf,
+    title: 'pdf',
+  },
+  aac: {
+    src: i_aac,
+    title: 'aac',
+  },
+  docx: {
+    src: i_docx,
+    title: 'docx',
+  },
+  dmg: {
+    src: i_dmg,
+    title: 'dmg',
+  },
+  etc: {
+    src: i_etc,
+    title: 'etc',
+  },
+  exe: {
+    src: i_exe,
+    title: 'exe',
+  },
+  gif: {
+    src: i_gif,
+    title: 'gif',
+  },
+  html: {
+    src: i_html,
+    title: 'html',
+  },
+  jpg: {
+    src: i_jpg,
+    title: 'jpg',
+  },
+  mp4: {
+    src: i_mp4,
+    title: 'mp4',
+  },
+  png: {
+    src: i_png,
+    title: 'png',
+  },
+  ppt: {
+    src: i_ppt,
+    title: 'ppt',
+  },
+  psd: {
+    src: i_psd,
+    title: 'psd',
+  },
+  svg: {
+    src: i_svg,
+    title: 'svg',
+  },
+  xlsx: {
+    src: i_xlsx,
+    title: 'xlsx',
+  },
+  zip: {
+    src: i_zip,
+    title: 'zip',
+  },
+};
 const { Option } = Select;
 
 /**
  * [Component] 사이드 패널
  * --
  */
-const SidePanel = ({ currentRoomInfo, userList, onUpdateFTP }) => {
+const SidePanel = ({
+  currentRoomInfo,
+  userList,
+  onUpdateFTP,
+  setFileViewer,
+}) => {
   const [form] = Form.useForm();
   /* ===== STATE ===== */
   const [inviteList, setInviteList] = useState([]);
@@ -115,7 +203,7 @@ const SidePanel = ({ currentRoomInfo, userList, onUpdateFTP }) => {
           <Tabs.TabPane tab="기본정보" key="t1" />
 
           {/* 파일목록 */}
-          <Tabs.TabPane tab="파일목록" key="t2" />
+          <Tabs.TabPane tab={`파일목록(${files && files.length})`} key="t2" />
         </Tabs>
 
         {/* ===== 탭 컨텐츠 ===== */}
@@ -185,53 +273,59 @@ const SidePanel = ({ currentRoomInfo, userList, onUpdateFTP }) => {
           <>
             <Row>
               {files &&
-                files.map((file) => (
-                  <Col x={12} style={{ padding: 5 }} key={file.file_id}>
-                    <Card
-                      hoverable
-                      cover={
-                        <img
-                          alt="example"
-                          src={
-                            file.file_exp.split('/')[1] === 'pdf'
-                              ? PDF_ICON
-                              : file.file_exp.split('/')[1] === 'jpeg'
-                              ? JPEG_ICON
-                              : file.file_exp.split('/')[1] === 'png'
-                              ? PNG_ICON
-                              : null
-                          }
-                          width={'90%'}
-                          height={82}
-                        />
-                      }
-                      bodyStyle={{ padding: '15px 10px' }}
+                files.map((file) => {
+                  const ICN = icons[file.file_exp.split('/')[1]];
+
+                  return (
+                    <Col
+                      x={12}
+                      style={{ padding: 5 }}
+                      key={`kew_${file.file_id}`}
                     >
-                      <Card.Meta
-                        title={
-                          <span style={{ fontSize: '0.85em' }}>
-                            {file.file_name}
-                          </span>
+                      <Card
+                        hoverable
+                        onClick={() => setFileViewer(file)}
+                        cover={
+                          <img
+                            alt="example"
+                            src={ICN && ICN.src}
+                            style={{
+                              maxWidth: 80,
+                              maxHeight: 80,
+                              width: '100%',
+                              height: '100%',
+                              margin: '15px auto',
+                            }}
+                          />
                         }
-                        description={
-                          <>
-                            {(file.file_size / 1024 / 1024).toFixed(2)}MB
-                            <br />
-                            {file.file_exp}
-                          </>
-                        }
-                        style={{ lineHeight: 1.05, fontSize: '0.85em' }}
-                      />
-                    </Card>
-                  </Col>
-                ))}
+                        bodyStyle={{ padding: '15px 10px' }}
+                      >
+                        <Card.Meta
+                          title={
+                            <span style={{ fontSize: '0.85em' }}>
+                              {file.file_name}
+                            </span>
+                          }
+                          description={
+                            <>
+                              {(file.file_size / 1024 / 1024).toFixed(2)}MB
+                              <br />
+                              {file.file_exp}
+                            </>
+                          }
+                          style={{ lineHeight: 1.05, fontSize: '0.85em' }}
+                        />
+                      </Card>
+                    </Col>
+                  );
+                })}
             </Row>
           </>
         )}
       </Sidebar>
 
       {/* ===== 모달 레이아웃 ===== */}
-      {/* = 멤버추가 = */}
+      {/* === 멤버추가 === */}
       <ModalLayout
         type={'drawer'}
         title={'FTP 연결정보 수정'}
@@ -260,7 +354,7 @@ const SidePanel = ({ currentRoomInfo, userList, onUpdateFTP }) => {
               style={{ width: '69%' }}
               onClick={handleSave}
             >
-              수정 완료2
+              수정 완료
             </Button>
           </div>
         }

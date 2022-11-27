@@ -256,6 +256,7 @@ const MessengerContainer = (props) => {
     } else {
       // 서버로 파일을 전송한다.
       files &&
+        socket &&
         socket.emit(
           'upload',
           files,
@@ -335,7 +336,10 @@ const MessengerContainer = (props) => {
       });
       socket.on('chat', (data) => {
         console.log('[chat] data: ', data);
-        setChatList((prev) => [...prev, data]);
+        const fid = chatList.findIndex((c) => c.chat_id === data.chat_id);
+        if (fid < 0) {
+          setChatList((prev) => [...prev, data]);
+        }
       });
       // socket.on('chat', (data, dd) => {
       //   console.log('[chat] data: ', data);
@@ -350,9 +354,10 @@ const MessengerContainer = (props) => {
       socket.on('login', (data) => {
         console.log('[login] data: ', data);
       });
-      // socket.on('login', (data) => {
-      //   console.log('[login] data: ', data);
-      // });
+      socket.on('uploadFailed', (_) => {
+        console.log('[uploadFailed] data: ');
+        MessageAlert.error('파일을 업로드 할 수 없습니다. 다시 시도해주세요.');
+      });
     };
 
     if (!userId) {
