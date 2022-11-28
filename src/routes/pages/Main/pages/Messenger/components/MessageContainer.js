@@ -231,7 +231,7 @@ const MessageContainer = ({
           <div
             className="uploadBox"
             onLoad={handleOnLoad()}
-            style={{ height: '100%' }}
+            style={{ height: '100%', zIndex: 999 }}
           >
             <MessageSeparator content="대화내용" />
 
