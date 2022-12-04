@@ -7,6 +7,9 @@ export { default as TypeManager } from './TypeManager';
 
 // export const PUBLIC_URL = 'http://localhost:3000';
 export const PUBLIC_URL = 'localhost';
+// export const PUBLIC_URL = '192.168.0.29';
+// export const BACKEND_URL = `http://192.168.0.29:3333`;
+export const BACKEND_URL = `http://localhost:3333`;
 
 export const getCookie = (name, options = null) => {
   const value = window.document.cookie.match(

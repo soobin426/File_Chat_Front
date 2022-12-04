@@ -7,7 +7,7 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import MessengerPresenter from './MessengerPresenter';
 import { io } from 'socket.io-client';
-import { getCookie, MessageAlert } from 'utils';
+import { getCookie, MessageAlert, BACKEND_URL } from 'utils';
 import { API } from 'api';
 import { useHistory, useLocation } from 'react-router-dom';
 import queryString from 'query-string';
@@ -30,7 +30,8 @@ class SocketManager {
   constructor(uid) {
     if (!SocketManager.instance) {
       if (this.socket) return true;
-      this.socket = io('http://localhost:3333', {
+      // this.socket = io('http://localhost:3333', {
+      this.socket = io(BACKEND_URL, {
         transports: ['websocket'],
         query: `userId=${uid ? uid : userId}`,
       });
@@ -248,8 +249,9 @@ const MessengerContainer = (props) => {
   const handleSendFile = (fileInfo) => {
     const files = fileInfo;
     const maxSize = 99 * 1024 * 1024;
-    const fileSize = files.size;
-    console.log(files);
+    const fileSize = files && files.size;
+    console.log('currentRoom:L', currentRoom);
+    console.log(userInfo, files);
     if (fileSize > maxSize) {
       alert('첨부파일 사이즈는 100MB 이내로 등록 가능합니다.');
       return false;

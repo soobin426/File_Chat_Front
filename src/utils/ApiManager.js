@@ -2,7 +2,7 @@
  *
  */
 
-import { getCookie } from '.';
+import { getCookie, BACKEND_URL } from '.';
 
 export default class ApiManager {
   /**
@@ -12,8 +12,9 @@ export default class ApiManager {
     if (!ApiManager.instance) {
       this.BASE_URL =
         process.env.NODE_ENV === 'development'
-          ? 'http://localhost:3333/api/v1'
+          ? `${BACKEND_URL}/api/v1`
           : 'http://49.50.161.183:3333';
+      // ? 'http://localhost:3333/api/v1'
       // ? 'http://localhost:3333/api/v1'
       // 싱글톤 변수 할당
       ApiManager.instance = this;

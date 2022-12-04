@@ -158,7 +158,7 @@ const SidePanel = ({
         room_ftppath: ftpInfo.room_ftppath,
         room_ftpid: ftpInfo.room_ftpid,
         room_ftppw: ftpInfo.room_ftppw,
-        room_ftpport: ftpInfo.room_ftppw,
+        room_ftpport: ftpInfo.room_ftpport,
       };
       const result = await onUpdateFTP(newData);
       if (result) {
@@ -181,9 +181,12 @@ const SidePanel = ({
         room_ftppath: currentRoomInfo.room_ftppath,
         room_ftpid: currentRoomInfo.room_ftpid,
         room_ftppw: currentRoomInfo.room_ftppw,
+        room_ftpport: currentRoomInfo.room_ftpport,
+        room_ftptype: currentRoomInfo.room_ftptype,
       });
   }, [currentRoomInfo]);
 
+  console.log('ftpInfo: ', ftpInfo);
   /* ===== Render ===== */
   return (
     <>
@@ -212,10 +215,12 @@ const SidePanel = ({
           <>
             <ExpansionPanel open title="FTP 연결정보">
               {/* <p>저장폴더: /Users/gimseonghun/Projects </p> */}
+              <p>구분: {currentRoomInfo && currentRoomInfo.room_ftptype}</p>
               <p>FTP서버: {currentRoomInfo && currentRoomInfo.room_ftpip}</p>
               <p>저장경로: {currentRoomInfo && currentRoomInfo.room_ftppath}</p>
               <p>계정: {currentRoomInfo && currentRoomInfo.room_ftpid}</p>
               <p>패스워드: {currentRoomInfo && currentRoomInfo.room_ftppw}</p>
+              <p>포트: {currentRoomInfo && currentRoomInfo.room_ftpport}</p>
               <p>
                 <Button block size="small" onClick={() => setModifyModal(true)}>
                   편집하기
@@ -402,11 +407,19 @@ const SidePanel = ({
               onChange={handleChangeFtp}
             />
           </Form.Item>
-          <Form.Item label="PW">
+          <Form.Item label="패스워드">
             <Input
               placeholder="패스워드를 입력해주세요"
               name="room_ftppw"
               value={ftpInfo.room_ftppw}
+              onChange={handleChangeFtp}
+            />
+          </Form.Item>
+          <Form.Item label="포트">
+            <Input
+              placeholder="포트를 입력해주세요"
+              name="room_ftpport"
+              value={ftpInfo.room_ftpport}
               onChange={handleChangeFtp}
             />
           </Form.Item>
