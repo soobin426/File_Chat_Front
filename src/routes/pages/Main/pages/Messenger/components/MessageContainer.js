@@ -51,8 +51,9 @@ const MessageContainer = ({
   onOpenSidePanel,
   userId,
   onSetCommand,
-  onSendMessage,
+  onSendMessage, // 메세지
   onSendFile,
+  onUploadFile,
   onChangeDate,
   setFileViewer,
   icons,
@@ -71,6 +72,7 @@ const MessageContainer = ({
    * --
    */
   const handleSendMessage = () => {
+    // 메세지를 보냈을때
     if (messageInputValue) onSendMessage(messageInputValue);
     setMessageInputValue('');
   };
@@ -80,7 +82,8 @@ const MessageContainer = ({
    * --
    */
   const handleOnLoad = () => {
-    console.log('ON----------------------------LOAD');
+    console.log('handleOnLoad !!! ')
+    // console.log('ON----------------------------LOAD');
     if (dragLoad === false) {
       setDragLoad(true);
     }
@@ -109,7 +112,9 @@ const MessageContainer = ({
    * --
    */
   useEffect(() => {
+    console.log('file upload 이후 파일 처리 : '+fileInfo)
     onSendFile(fileInfo);
+    // onUploadFile(fileInfo)
     // console.log('fileInfo:', fileInfo);
   }, [fileInfo]);
 
@@ -148,7 +153,20 @@ const MessageContainer = ({
         this.style.backgroundColor = 'white';
 
         const data = e.dataTransfer.files[0];
+        // console.log('@@@@ file의 데이터 : '+JSON.stringify(data))
+        // reader = new FileReader();
+
+        // reader.onload = function(event) {
+        //   // const fileData = {
+        //   //   fileName : data.name,
+        //   //   fileContent : e.target.result,
+        //   // };
+        //   data.fileContent = e.target.result
+        //   onSendFile(data); // 파일 드래그 엔 드랍 -> handleSendFile() 실행시켜줌
+        // }
+        // reader.readAsDataURL(data);
         onSendFile(data);
+        // onUploadFile(data);
       });
       console.log('dragLoad2 : ', dragLoad);
     } else {
@@ -371,7 +389,7 @@ const MessageContainer = ({
           </div>
         </MessageList>
         <MessageInput
-          placeholder="Type message here"
+          placeholder="Type message here !!"
           value={messageInputValue}
           onChange={(val) => setMessageInputValue(val)}
           onSend={handleSendMessage}

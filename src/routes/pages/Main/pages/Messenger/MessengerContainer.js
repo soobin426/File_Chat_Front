@@ -191,14 +191,23 @@ const MessengerContainer = (props) => {
    * --
    */
   const handleSendMessage = (msg = '') => {
+    // 메세지 보냈을때의 처리
+    
     if (msg) socket.emit('chat', currentRoom, userInfo.user_id, msg);
   };
+
+  // const handleSendFile = (msg = '') => {
+  //   // 메세지 보냈을때의 처리
+  //   console.log('handleSendMessage Msg text : '+ msg +', currentRoom : '+currentRoom );
+  //   if (msg) socket.emit('chat', currentRoom, userInfo.user_id, msg, category);
+  // };
 
   /**
    * 채팅방 상세조회
    * --
    */
   const handleGetRoom = useCallback(async () => {
+    //채팅방 이동하였을떄 
     console.log('[CHANGE ROOM] currentRoom: ', currentRoom);
 
     try {
@@ -247,6 +256,7 @@ const MessengerContainer = (props) => {
    * --
    */
   const handleSendFile = (fileInfo) => {
+    console.log('ManagerContainer 파일의 handelSendFile 들어옴 : ' + JSON.stringify(fileInfo))
     const files = fileInfo;
     const maxSize = 99 * 1024 * 1024;
     const fileSize = files && files.size;
@@ -268,11 +278,18 @@ const MessengerContainer = (props) => {
           currentRoom,
           userInfo.user_id,
           (status) => {
-            console.log(status);
+            console.log('파일 업로드 이후 상태 코드 값 : '+status);
           }
         );
     }
   };
+
+
+  const handleUploadFile = async (fileInfo) => {
+    console.log('파일 업로드 이후 신호받는 곳');
+
+
+  }
 
   /**
    * 저장 함수
@@ -338,6 +355,7 @@ const MessengerContainer = (props) => {
       });
       socket.on('chat', (data) => {
         console.log('[chat] data: ', data);
+        console.log('서버에서 chat 신호를 보내주면 여기로 들어옴')
         const fid = chatList.findIndex((c) => c.chat_id === data.chat_id);
         if (fid < 0) {
           setChatList((prev) => [...prev, data]);
@@ -358,8 +376,30 @@ const MessengerContainer = (props) => {
       });
       socket.on('uploadFailed', (_) => {
         console.log('[uploadFailed] data: ');
+
         MessageAlert.error('파일을 업로드 할 수 없습니다. 다시 시도해주세요.');
       });
+      socket.on('downloadLink',(downloadLink, data)=>{
+        console.log('다운로드 링크 생성후 받는 곳 !!! : '+downloadLink)
+        // 이 파일을 다운로드 받을 수 있을지 없을지 ? 
+        // window.open(downloadLink,'_self'); // 새 창을 만들어줌 
+
+        // URL 객체 생성
+        const urlObject = new URL(downloadLink);
+        // const pathAndQuery = urlObject.pathname + urlObject.search;
+
+        // // 현재 페이지의 URL과 결합하여 현재 페이지 유지
+        // const currentURL = new URL(window.location.href);
+        // const newLink = new URL(pathAndQuery, currentURL);
+
+        // 현재 페이지에서 링크 실행
+        // window.open(newLink, '_self');
+        window.open(urlObject,'_self');
+        const fid = chatList.findIndex((c) => c.chat_id === data.chat_id);
+        if (fid < 0) {
+          setChatList((prev) => [...prev, data]);
+        }
+      })
     };
 
     if (!userId) {
@@ -444,6 +484,7 @@ const MessengerContainer = (props) => {
       onGetRoomList={handleGetRoomList}
       onSendMessage={handleSendMessage}
       onSendFile={handleSendFile}
+      onUploadFile={handleUploadFile}
       onUpdateFTP={handleUpdateFTP}
       onChangeDate={onChangeDate}
     />

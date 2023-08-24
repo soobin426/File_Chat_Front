@@ -65,5 +65,11 @@ const API = {
    * --
    */
   login: (body) => $http.post(`/users/login`, body),
+
+  /**
+   * 파일다운로드
+   * --
+   */
+  fileDownload: (body) => $http.get(`/download/:fileId`, body),
 };
 export default API;

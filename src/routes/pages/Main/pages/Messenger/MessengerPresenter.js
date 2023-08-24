@@ -120,6 +120,7 @@ export default function MessengerPresenter(props) {
     onCreateRoom,
     onSendMessage,
     onSendFile,
+    onUploadFile,
     onUpdateFTP,
     onChangeDate,
   } = props;
@@ -172,6 +173,7 @@ export default function MessengerPresenter(props) {
             onSetCommand={onSetCommand}
             onSendMessage={onSendMessage}
             onSendFile={onSendFile}
+            onUploadFile={onUploadFile}
             onChangeDate={onChangeDate}
             setFileViewer={setFileViewer}
             icons={icons}
@@ -216,8 +218,10 @@ export default function MessengerPresenter(props) {
               style={{ width: '48.5%' }}
               // onClick={() => setFileViewer(null)}
               onClick={() =>
-                (window.location.open =
-                  'ftp://seongh7800:fg!468938@seongh7800.dothome.co.kr/html/nodejs.zip')
+                // (window.location.open =
+                //   'ftp://seongh7800:fg!468938@seongh7800.dothome.co.kr/html/nodejs.zip')
+                  (window.location.open =
+                    'ftp://192.168.219.181:50001/home/testuser/testDir')
               }
             >
               다운로드
