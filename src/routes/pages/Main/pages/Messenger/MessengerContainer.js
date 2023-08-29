@@ -272,7 +272,7 @@ const MessengerContainer = (props) => {
         socket.emit(
           'upload',
           files,
-          files.name,
+          encodeURIComponent(files.name),
           files.size,
           files.type,
           currentRoom,
