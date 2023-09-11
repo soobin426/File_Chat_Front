@@ -11,6 +11,11 @@ import { getCookie, MessageAlert, BACKEND_URL } from 'utils';
 import { API } from 'api';
 import { useHistory, useLocation } from 'react-router-dom';
 import queryString from 'query-string';
+const wrtc = require('wrtc');
+const { RTCPeerConnection, RTCSessionDescription } = wrtc;
+// 피어 간 연결 설정 
+const peerConnection = new RTCPeerConnection();
+// let dataChannel = null; // 전역 변수로 데이터 채널 관리
 
 // import {
 //   initSocketConnection,
@@ -163,13 +168,13 @@ const MessengerContainer = (props) => {
       };
 
       // API Call
-      const { status, data } = await API.createRoom(newData);
+      const { status, data } = await API.createRoom(newData); // data의 authCode값이 인증코드임.
       if (status !== 200) {
         throw { message: '채팅방을 생성할 수 없습니다. 다시 시도해주세요' };
       }
 
       setRoomList((prev) => [...prev, data]);
-      MessageAlert.success('생성되었습니다');
+      MessageAlert.success(`생성되었습니다 \n 채팅방 인증코드는 ${data.authCode} 입니다.`);
       return true;
     } catch (err) {
       console.log('[handleCreateRoom] Error: ', err);
@@ -212,7 +217,7 @@ const MessengerContainer = (props) => {
 
     try {
       // API Call
-      const { status, data } = await API.getRoom(currentRoom);
+      const { status, data } = await API.getRoom(currentRoom); //data
       const chatResult = await API.getChats(currentRoom);
       // // 파일정보 리스트
       // const fileResult = await API.getFiles(currentRoom);
@@ -237,11 +242,91 @@ const MessengerContainer = (props) => {
       // socket.emit('leaveRoom', currentRoom, user_name);
       // 소켓연결
       socket.emit('joinRoom', room_id, user_name);
+      socket.emit('join', room_id);
       socket.emit('login', {
         room_id,
         user_name,
         user_id,
       });
+
+      peerConnection.createOffer()
+      .then(offer => {
+        console.log('offer 생성 : '+offer)
+        return peerConnection.setLocalDescription(offer);
+      })
+      .then(() => {
+        console.log('offer 호출 : '+JSON.stringify(peerConnection.localDescription))
+        socket.emit('offer', peerConnection.localDescription,room_id);
+      });
+
+      // DataChannel 생성
+      peerConnection.ondatachannel = (event) => {
+        const dataChannel = event.channel;
+
+        dataChannel.onmessage = (event) => {
+          // 받은 파일 데이터 처리 및 저장
+          const fileData = event.data;
+          // 파일 데이터 처리 및 저장 로직 추가
+        };
+      };
+
+      // DataChannel 생성
+      // const dataChannel = peerConnection.createDataChannel('fileTransfer');
+      // dataChannel.onopen = () => {
+      //   // DataChannel이 열렸을 때의 처리
+      //   console.log('data channel 생성')
+      //   const fileData = 'Sample file content'; // 실제 파일 데이터 입력
+      //   dataChannel.send(fileData); // 데이터 채널을 통해 파일 데이터 전송
+      // };
+
+      // dataChannel.onmessage = (event) => {
+      //   // DataChannel 메시지 수신 처리
+      //   console.log('event.data : '+JSON.stringify(event.data))
+      //   const receivedData = event.data;
+      //   console.log('Received file data:', receivedData);
+      //   const downloadLink = document.createElement('a');
+      //   downloadLink.href = URL.createObjectURL(receivedData);
+      //   downloadLink.download = 'received_file.txt'; // 파일명 지정
+      //   downloadLink.click();
+      // }; 
+
+      // 클라이언트 측에서 offer 수신
+      socket.on('offer', (offer) => { 
+        // 수신한 offer를 RTCSessionDescription 객체로 변환
+        const remoteOffer = new RTCSessionDescription(offer);
+        // 피어 연결 설정 및 offer 적용
+        peerConnection.setRemoteDescription(remoteOffer)
+          .then(() => {
+            // answer 생성 및 시그널링 서버로 전송
+            return peerConnection.createAnswer();
+          })
+          .then((localAnswer) => {
+            // localAnswer를 시그널링 서버를 통해 전송
+            console.log('@@@@@@@ localAnswer를 시그널링 서버를 통해 전송', localAnswer)
+            socket.emit('answer', localAnswer,room_id);
+          })
+          .catch((error) => {
+            console.error('Error handling offer:', error);
+          });
+      });
+
+      // 클라이언트 측에서 answer 수신
+      socket.on('answer', (answer) => {
+        // 수신한 answer를 RTCSessionDescription 객체로 변환
+        const remoteAnswer = new RTCSessionDescription(answer);
+
+        // 피어 연결 설정에 answer 적용
+        peerConnection.setRemoteDescription(remoteAnswer)
+          .then(() => {
+            console.log('@@@@@@@ answer 받음!!!! ');
+            createDataChannel()
+          })
+          .catch((error) => {
+            console.error('Error handling answer:', error);
+          });
+      });
+
+
       // Set state
       setChatList(chatResult.data);
       setCurrentRoomInfo(data);
@@ -266,9 +351,17 @@ const MessengerContainer = (props) => {
       alert('첨부파일 사이즈는 100MB 이내로 등록 가능합니다.');
       return false;
     } else {
+      // // 데이터 채널을 통해 파일 데이터 전송
+      // const dataChannel =  createDataChannel('fileTransfer');
+      // dataChannel.send(files);
+      const detaChannel = createDataChannel()
+      // detaChannel.send(files);
+
+      // dataChannel.send(files);
+
       // 서버로 파일을 전송한다.
       files &&
-        socket &&
+        socket && socket.emit('sendFile', files, currentRoom, userInfo.user_id) &&
         socket.emit(
           'upload',
           files,
@@ -285,11 +378,23 @@ const MessengerContainer = (props) => {
   };
 
 
-  const handleUploadFile = async (fileInfo) => {
-    console.log('파일 업로드 이후 신호받는 곳');
+// 데이터 채널 생성 함수
+function createDataChannel() {
+  const newDataChannel = peerConnection.createDataChannel('fileChannel');
 
+  newDataChannel.onopen = () => {
+    console.log('Data channel opened');
+    // 파일 데이터를 보내거나 받을 준비
+  };
 
-  }
+  newDataChannel.onmessage = (event) => {
+    console.log('Received data:', event.data);
+    // 받은 파일 데이터 처리
+  };
+
+  // dataChannel = newDataChannel; // 전역 변수에 채널 할당
+  return newDataChannel
+}
 
   /**
    * 저장 함수
@@ -478,9 +583,9 @@ const MessengerContainer = (props) => {
       onGetRoomList={handleGetRoomList}
       onSendMessage={handleSendMessage}
       onSendFile={handleSendFile}
-      onUploadFile={handleUploadFile}
       onUpdateFTP={handleUpdateFTP}
       onChangeDate={onChangeDate}
+      
     />
   );
 };

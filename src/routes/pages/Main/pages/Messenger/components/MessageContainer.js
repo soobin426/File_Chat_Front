@@ -113,7 +113,7 @@ const MessageContainer = ({
    */
   useEffect(() => {
     console.log('file upload 이후 파일 처리 : '+fileInfo)
-    onSendFile(fileInfo);
+    onSendFile(fileInfo); // 주석 풀기
     // onUploadFile(fileInfo)
     // console.log('fileInfo:', fileInfo);
   }, [fileInfo]);
