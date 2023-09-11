@@ -13,6 +13,7 @@ import { MessageAlert } from 'utils';
 // import JPEG_ICON from 'assets/images/JPEG.png';
 // import PNG_ICON from 'assets/images/PNG.png';
 // import PDF_ICON from 'assets/images/PDF.png';
+import { API } from 'api';
 
 import i_pdf from 'assets/icons/icon_pdf.png';
 import i_aac from 'assets/icons/icon_aac.png';
@@ -117,6 +118,7 @@ const SidePanel = ({
   const [modifyModal, setModifyModal] = useState(false);
   const [currentTab, setCurrentTab] = useState('t1');
   const [defaultMemebers, setDefaultMembers] = useState([]);
+  const [createModal, setCreateModal] = useState(false);
   const [ftpInfo, setFtpInfo] = useState({
     room_ftptype: 'sftp',
     room_ftpip: '',
@@ -132,6 +134,7 @@ const SidePanel = ({
    */
   const handleChange = (value) => {
     setInviteList(value);
+    setCreateModal(false);
   };
 
   /**
@@ -144,6 +147,23 @@ const SidePanel = ({
       ...prev,
       [name]: value,
     }));
+  };
+
+  const handleButtonClick = async (room_id) => {
+    try {
+      const response = await API.authCodeSearch(room_id);
+
+      // 반환된 데이터를 사용하여 상태를 업데이트
+      // 예: data에서 필요한 값을 추출하여 상태를 업데이트
+      // setSomeState(data.someValue);
+
+      // 모달을 띄우기
+      currentRoomInfo.room_auth_code = response.auth_code
+      currentRoomInfo.valid_time = response.valid_time
+      setCreateModal(true);
+    } catch (error) {
+      console.error('Error fetching data:', error);
+    }
   };
 
   /**
@@ -265,6 +285,11 @@ const SidePanel = ({
               </Row>
             </ExpansionPanel>
             <ExpansionPanel title="설정">
+            <p>
+              <Button block size="small" onClick={()=>handleButtonClick(currentRoomInfo.room_id)}>
+                인증코드 발급 
+              </Button>
+              </p>
               <p>나가기 이용약관</p>
               <p>
                 <Button block size="small" danger>
@@ -531,6 +556,45 @@ const SidePanel = ({
           ))
         )} */}
       </ModalLayout>
+
+      {/* = 인증코드 확인 모달 = */}
+      <ModalLayout 
+        // type={'drawer'}
+        title={'인증코드 발급 완료'}
+        width={540}
+        visible={createModal}
+        onOk={() => setCreateModal(false)}
+        onCancel={() => setCreateModal(false)}
+        style={{ top: 70 }}
+        bodyStyle={{ padding: 20 }}
+        footer={
+          <div
+            style={{
+              textAlign: 'center',
+              width: '100%',
+            }}
+          >
+            <Button
+              size={'large'}
+              type="primary"
+              style={{ width: '69%' }}
+              onClick={() => setCreateModal(false)}
+            >
+              확인
+            </Button>
+          </div>
+        }
+      >
+        <div style={{
+          textAlign: 'center'
+        }}>
+          <p>인증코드는 {currentRoomInfo.room_auth_code} 입니다.</p>
+          <p>유효기간 : {currentRoomInfo.valid_time}</p>
+        </div>
+        <script>
+        </script>
+ 
+      </ModalLayout>
     </>
   );
 };
@@ -539,5 +603,6 @@ const SidePanel = ({
 SidePanel.defaultProps = {
   currentRoomInfo: null,
   userList: [],
+  authCode: 0,
 };
 export default SidePanel;
