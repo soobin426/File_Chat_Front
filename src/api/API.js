@@ -73,16 +73,16 @@ const API = {
   fileDownload: (body) => $http.get(`/download/:fileId`, body),
 
   /**
-   * 파일다운로드
+   * 인증코드 발급
    * --
    */
   authCodeSearch: (room_id) => $http.get(`/auth-code`, { room_id }),
 
   /**
-   * 파일다운로드
+   * 버그 리포트
    * --
    */
-  fileDownload: (body) => $http.get(`/auth-code`, body),
+  sendBugReport: (body) => $http.post(`/bug/report`, body),
 
 };
 export default API;
