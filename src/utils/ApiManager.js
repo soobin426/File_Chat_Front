@@ -43,7 +43,7 @@ export default class ApiManager {
       'Access-Control-Allow-Origin': '*',
       // 'Content-Type': 'application/json;',
       // "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
-      Authorization: `Bearer ${getCookie('token')}`,
+      Authorization: `Bearer ${encodeURIComponent(getCookie('token'))}`,
     };
     return this.headers;
   };
