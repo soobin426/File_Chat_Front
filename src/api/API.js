@@ -84,5 +84,11 @@ const API = {
    */
   sendBugReport: (body) => $http.post(`/bug/report`, body),
 
+  /**
+   * 채팅방 나가기
+   * --
+   */
+  leaveRoom: (roomId) => $http.delete(parameterToPath(`/rooms/:roomId`, { roomId })),
+
 };
 export default API;

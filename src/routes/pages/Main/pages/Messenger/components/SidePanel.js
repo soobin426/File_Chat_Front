@@ -166,6 +166,16 @@ const SidePanel = ({
     }
   };
 
+  const handleLeaveRoom = async (room_id) => {
+    try {
+      const response = await API.leaveRoom(room_id);
+
+      window.location.href = '/messenger';
+    } catch (error) {
+      console.error('Error fetching data:', error);
+    }
+  };
+
   /**
    * 저장 함수
    * --
@@ -292,7 +302,7 @@ const SidePanel = ({
               </p>
               <p>나가기 이용약관</p>
               <p>
-                <Button block size="small" danger>
+                <Button block size="small" danger onClick={()=>handleLeaveRoom(currentRoomInfo.room_id)}>
                   채팅방 나가기
                 </Button>
               </p>
