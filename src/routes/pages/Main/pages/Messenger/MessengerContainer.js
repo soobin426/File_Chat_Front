@@ -379,18 +379,20 @@ const MessengerContainer = (props) => {
 
         MessageAlert.error('파일을 업로드 할 수 없습니다. 다시 시도해주세요.');
       });
-      socket.on('downloadLink',(downloadLink, data, fileData)=>{
+      
+      socket.on('downloadLink',(downloadLink, fileData)=>{
+        
         console.log('다운로드 링크 : '+downloadLink)
         console.log('fileData : '+ JSON.stringify(fileData))
         // URL 객체 생성
         const urlObject = new URL(downloadLink);
         
-        window.open(urlObject,'_self');
+         //open(urlObject,'_self');
 
-        const fid = chatList.findIndex((c) => c.chat_id === data.chat_id);
-        if (fid < 0) {
-          setChatList((prev) => [...prev, data]);
-        }
+        // const fid = chatList.findIndex((c) => c.chat_id === data.chat_id);
+        // if (fid < 0) {
+        //   setChatList((prev) => [...prev, data]);
+        // }
 
         // 여기서 문제없이 실행되었을 경우 후처리 필요 ?
       })
