@@ -100,6 +100,7 @@ const MessengerContainer = (props) => {
 
   useEffect(() => {
     const call = (key = null) => {
+      // console.log('[RoomList] data:',roomList )
       const filtered = roomList.filter((item) => item.room_id === key)[0];
       //Chat roomId 오류 수정
       setCurrentRoom(Number(key));
@@ -192,7 +193,6 @@ const MessengerContainer = (props) => {
    */
   const handleSendMessage = (msg = '') => {
     // 메세지 보냈을때의 처리
-    
     if (msg) socket.emit('chat', currentRoom, userInfo.user_id, msg);
   };
 
@@ -266,23 +266,32 @@ const MessengerContainer = (props) => {
       alert('첨부파일 사이즈는 100MB 이내로 등록 가능합니다.');
       return false;
     } else {
+      // const fileBuffer = Buffer.from(files, 'hex')
+
+      const fileBlob = new Blob([files],{type: files.type})
+      files && socket && socket.emit('upload', fileBlob, files.type, encodeURIComponent(files.name), files.size, currentRoom, userInfo.user_id)
+
       // 서버로 파일을 전송한다.
-      files &&
-        socket &&
-        socket.emit(
-          'upload',
-          files,
-          encodeURIComponent(files.name),
-          files.size,
-          files.type,
-          currentRoom,
-          userInfo.user_id,
-          (status) => {
-            console.log('파일 업로드 이후 상태 코드 값 : '+status);
-          }
-        );
+      // files &&
+      //   socket &&
+      //   socket.emit(
+      //     'upload',
+      //     files,
+      //     encodeURIComponent(files.name),
+      //     files.size,
+      //     files.type,
+      //     currentRoom,
+      //     userInfo.user_id,
+      //     (status) => {
+      //       console.log('파일 업로드 이후 상태 코드 값 : '+status);
+      //     }
+      //   );
     }
   };
+
+  const handleFileDownloadReq = (fileInfo) => {
+    socket.emit('download', fileInfo, currentRoom, userInfo.user_id)
+  }
 
 
   const handleUploadFile = async (fileInfo) => {
@@ -386,15 +395,55 @@ const MessengerContainer = (props) => {
         console.log('fileData : '+ JSON.stringify(fileData))
         // URL 객체 생성
         const urlObject = new URL(downloadLink);
-        
-         //open(urlObject,'_self');
 
-        // const fid = chatList.findIndex((c) => c.chat_id === data.chat_id);
-        // if (fid < 0) {
-        //   setChatList((prev) => [...prev, data]);
-        // }
+      })
 
-        // 여기서 문제없이 실행되었을 경우 후처리 필요 ?
+      // 확장프로그램에서 작성되어야함 
+      socket.on('download', (blobData, blobType, fileName, user_id, file_id, room_id) => {
+        const file = new File([blobData], fileName, { type: blobType});
+
+        // 파일 다운로드 등의 작업 수행
+        // 예시: 파일 다운로드
+        const url = URL.createObjectURL(file);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = fileName;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+      })
+
+      // 확장프로그램에서 작성되어야함 
+      socket.on('upload', async (file_id, room_id, user_id) => {
+        // 파일을 찾아서 blob데이터로 반환해주는 처리 필요
+        const body = {
+          blob_data: 'test', 
+          blob_type: 'test', 
+          file_name: 'test', 
+          user_id: 1, 
+          file_id: 100, 
+          room_id: 2
+        }
+
+        const { status, data } = await API.download(body);
+
+      })
+
+      socket.on('client-download', (blobData, blobType, fileName, user_id, file_id, room_id) => {
+        console.log('client-download')
+        const file = new File([blobData], fileName, { type: blobType});
+
+        // 파일 다운로드 등의 작업 수행
+        // 예시: 파일 다운로드
+        const url = URL.createObjectURL(file);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = fileName;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
       })
     };
 
@@ -483,6 +532,7 @@ const MessengerContainer = (props) => {
       onUploadFile={handleUploadFile}
       onUpdateFTP={handleUpdateFTP}
       onChangeDate={onChangeDate}
+      onFileDownload={handleFileDownloadReq}
     />
   );
 };

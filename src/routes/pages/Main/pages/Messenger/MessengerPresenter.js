@@ -123,6 +123,7 @@ export default function MessengerPresenter(props) {
     onUploadFile,
     onUpdateFTP,
     onChangeDate,
+    onFileDownload,
   } = props;
 
   /* ====== STATE ====== */
@@ -217,11 +218,12 @@ export default function MessengerPresenter(props) {
               type="primary"
               style={{ width: '48.5%' }}
               // onClick={() => setFileViewer(null)}
-              onClick={() =>
+              onClick={() => onFileDownload(fileViewer.file_id)
                 // (window.location.open =
                 //   'ftp://seongh7800:fg!468938@seongh7800.dothome.co.kr/html/nodejs.zip')
-                  (window.location.open =
-                    'ftp://192.168.219.181:50001/home/testuser/testDir')
+                  // (window.location.open =
+                  //   'ftp://192.168.219.181:50001/home/testuser/testDir')
+                  // onFileDownload(fileViewer.file_saveId)
               }
             >
               다운로드

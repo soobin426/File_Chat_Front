@@ -90,5 +90,11 @@ const API = {
    */
   leaveRoom: (roomId) => $http.delete(parameterToPath(`/rooms/:roomId`, { roomId })),
 
+  /**
+   * 다운로드 요청
+   * --
+   */
+  download: (body) => $http.post(`/download/file`, { body }),
+
 };
 export default API;
