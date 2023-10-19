@@ -269,7 +269,10 @@ const MessengerContainer = (props) => {
       // const fileBuffer = Buffer.from(files, 'hex')
 
       const fileBlob = new Blob([files],{type: files.type})
+      const file = new File([fileBlob],  encodeURIComponent(files.name), { type: files.type});
+      const url = URL.createObjectURL(file);
       files && socket && socket.emit('upload', fileBlob, files.type, encodeURIComponent(files.name), files.size, currentRoom, userInfo.user_id)
+      // files && socket && socket.emit('upload',url, files.size, currentRoom, userInfo.user_id)
 
       // 서버로 파일을 전송한다.
       // files &&
@@ -290,6 +293,7 @@ const MessengerContainer = (props) => {
   };
 
   const handleFileDownloadReq = (fileInfo) => {
+    console.log('소켓 전 송 !! ')
     socket.emit('download', fileInfo, currentRoom, userInfo.user_id)
   }
 
@@ -399,36 +403,21 @@ const MessengerContainer = (props) => {
       })
 
       // 확장프로그램에서 작성되어야함 
-      socket.on('download', (blobData, blobType, fileName, user_id, file_id, room_id) => {
-        const file = new File([blobData], fileName, { type: blobType});
+      // socket.on('download', (blobData, blobType, fileName, user_id, file_id, room_id) => {
+      //   // const file = new File([blobData], fileName, { type: blobType});
 
-        // 파일 다운로드 등의 작업 수행
-        // 예시: 파일 다운로드
-        const url = URL.createObjectURL(file);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = fileName;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        URL.revokeObjectURL(url);
-      })
-
-      // 확장프로그램에서 작성되어야함 
-      socket.on('upload', async (file_id, room_id, user_id) => {
-        // 파일을 찾아서 blob데이터로 반환해주는 처리 필요
-        const body = {
-          blob_data: 'test', 
-          blob_type: 'test', 
-          file_name: 'test', 
-          user_id: 1, 
-          file_id: 100, 
-          room_id: 2
-        }
-
-        const { status, data } = await API.download(body);
-
-      })
+      //   // // 파일 다운로드 등의 작업 수행
+      //   // // 예시: 파일 다운로드
+      //   // const url = URL.createObjectURL(file);
+      //   // const a = document.createElement('a');
+      //   // a.href = url;
+      //   // a.download = fileName;
+      //   // document.body.appendChild(a);
+      //   // console.log('생성한 url : ', url )
+      //   // a.click();
+      //   // document.body.removeChild(a);
+      //   // URL.revokeObjectURL(url);
+      // })
 
       socket.on('client-download', (blobData, blobType, fileName, user_id, file_id, room_id) => {
         console.log('client-download')
@@ -442,8 +431,8 @@ const MessengerContainer = (props) => {
         a.download = fileName;
         document.body.appendChild(a);
         a.click();
+        console.log('생성한 url : ', url )
         document.body.removeChild(a);
-        URL.revokeObjectURL(url);
       })
     };
 
