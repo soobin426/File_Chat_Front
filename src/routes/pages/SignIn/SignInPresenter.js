@@ -39,7 +39,7 @@ const SignInPresenter = ({ handleLogin, handleSignUp }) => {
           </div>
           <Form onFinish={signin}>
             <Form.Item name="user_account">
-              <Input size="large" placeholder="Account" />
+              <Input size="large" placeholder="Email" />
             </Form.Item>
             <Form.Item name="user_pw">
               <Input.Password size="large" placeholder="Password" />

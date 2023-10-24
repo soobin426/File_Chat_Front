@@ -37,11 +37,22 @@ const SignUpPresenter = ({ handleSignup }) => {
               rules={[
                 {
                   required: true,
-                  message: '아이디를 입력하세요!',
+                  message: '이메일을 입력하세요!',
+                },
+                {
+                  type: 'email',
+                  message: '올바른 이메일 형식이 아닙니다 !',
+                },
+                {
+                  vaildator: async (rule, value) => {
+                    if (!/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(value)) {
+                      throw new Error('올바른 이메일 형식이 아닙니다!');
+                    }
+                  }
                 },
               ]}
             >
-              <Input size="large" placeholder="아이디를 입력해주세요." />
+              <Input size="large" placeholder="이메일을 입력해주세요." />
             </Form.Item>
             <Form.Item
               name="user_pw"

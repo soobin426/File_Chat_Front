@@ -257,7 +257,7 @@ const MessageContainer = ({
               // 유저 썸네일 첫글자
               const userName = userList.filter(
                 (item) => item.user_id === chat.user_id
-              )[0].user_name;
+              )[0]?.user_name;
               // 날짜
               const changeDate = onChangeDate(chat.chat_date);
               // 방향설정
@@ -337,7 +337,7 @@ const MessageContainer = ({
                             border: '1px solid #cdcdcd',
                           }}
                         >
-                          {userName[0].toUpperCase()}
+                          {userName && userName[0]?.toUpperCase()}
                         </Avatar>
                       )}
 

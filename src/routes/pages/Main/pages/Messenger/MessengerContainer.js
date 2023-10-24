@@ -269,8 +269,8 @@ const MessengerContainer = (props) => {
       // const fileBuffer = Buffer.from(files, 'hex')
 
       const fileBlob = new Blob([files],{type: files.type})
-      const file = new File([fileBlob],  encodeURIComponent(files.name), { type: files.type});
-      const url = URL.createObjectURL(file);
+      // const file = new File([fileBlob],  encodeURIComponent(files.name), { type: files.type});
+      // const url = URL.createObjectURL(file);
       files && socket && socket.emit('upload', fileBlob, files.type, encodeURIComponent(files.name), files.size, currentRoom, userInfo.user_id)
       // files && socket && socket.emit('upload',url, files.size, currentRoom, userInfo.user_id)
 
