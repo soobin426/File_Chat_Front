@@ -145,7 +145,7 @@ const MessengerContainer = (props) => {
 
       const members = [];
       for (let i of inviteList) {
-        members.push(Number(i));
+        members.push(i);
       }
       // 모델
       const newData = {

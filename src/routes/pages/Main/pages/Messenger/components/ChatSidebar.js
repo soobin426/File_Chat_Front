@@ -194,18 +194,18 @@ const ChatSidebar = ({
           {/* 멤버 */}
           <Form.Item label="멤버" style={styles.formItem}>
             <Select
-              mode="multiple"
+              mode="tags"
               allowClear
               style={{
                 width: '100%',
               }}
               placeholder="Please select"
-              defaultValue={userInfo ? [String(userInfo.user_id)] : []}
+              defaultValue={userInfo ? [String(userInfo.user_account)] : []}
               onChange={handleChangeInviteList}
             >
-              {userList.map((item) => (
-                <Option key={`${item.user_id}`}>{item.user_name}</Option>
-              ))}
+              {/* {userList.map((item) => (
+                <Option key={`${item.user_id}`}>{item.user_account}</Option>
+              ))} */}
             </Select>
           </Form.Item>
 
