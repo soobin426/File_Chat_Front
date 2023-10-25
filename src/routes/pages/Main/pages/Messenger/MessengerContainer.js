@@ -294,7 +294,7 @@ const MessengerContainer = (props) => {
 
   const handleFileDownloadReq = (fileInfo) => {
     console.log('소켓 전 송 !! ')
-    socket.emit('download', fileInfo, currentRoom, userInfo.user_id)
+    socket.emit('download', fileInfo, currentRoom, userInfo.user_id, '')
   }
 
 
