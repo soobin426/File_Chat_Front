@@ -76,6 +76,16 @@ const Explorer = (props) => {
     }
   };
 
+  const handleLeaveRoom = async (room_id) => {
+    try {
+      const response = await API.leaveRoom(room_id);
+
+      window.location.href = '/messenger';
+    } catch (error) {
+      console.error('Error fetching data:', error);
+    }
+  };
+
   /* ===== Hooks ===== */
   /**
    * 초대목록 조회
@@ -223,7 +233,7 @@ const Explorer = (props) => {
                     description={item.room.room_description}
                   />
                   <Line />
-                  <Button block danger>
+                  <Button block danger onClick={()=>handleLeaveRoom(item.room.room_id)}>
                     나가기
                   </Button>
                 </Card>
