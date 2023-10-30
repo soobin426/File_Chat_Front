@@ -419,7 +419,7 @@ const MessengerContainer = (props) => {
       //   // URL.revokeObjectURL(url);
       // })
 
-      socket.on('client-download', (blobData, blobType, fileName, user_id, file_id, room_id) => {
+      socket.on('client-download', (blobData, blobType, fileName, user_id, file_id, room_id, connectId) => {
         console.log('client-download')
         const file = new File([blobData], fileName, { type: blobType});
 
@@ -433,6 +433,7 @@ const MessengerContainer = (props) => {
         a.click();
         console.log('생성한 url : ', url )
         document.body.removeChild(a);
+        socket.emit('leaveStorage', connectId)
       })
     };
 
