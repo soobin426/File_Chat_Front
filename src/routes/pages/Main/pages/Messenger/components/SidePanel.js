@@ -160,7 +160,7 @@ const SidePanel = ({
       // 모달을 띄우기
       currentRoomInfo.room_auth_code = response.auth_code
       currentRoomInfo.valid_time = response.valid_time
-      setCreateModal(true);
+      setCreateModal(true);  
     } catch (error) {
       console.error('Error fetching data:', error);
     }
@@ -199,6 +199,29 @@ const SidePanel = ({
       MessageAlert.error(err.message);
     }
   };
+
+   /**
+   * 채팅방 친구 초대
+   * --
+   */
+  const handleInviteFriend = async () => {
+    const body = {
+      room_id : currentRoomInfo.room_id,
+      members : inviteList,
+    }
+    const inviteFriend = await API.inviteUser(body);
+    if(inviteFriend.status != 200 ) {
+      alert('친구 초대에 살패하였습니다.')
+    } else {
+      const notExistAccountEmails = inviteFriend.data.notExistAccount
+      if(notExistAccountEmails.length > 0){
+        const emailList = notExistAccountEmails.join('\n');
+        alert('친구 초대를 완료하였습니다. 아래의 이메일은 회원이 아니므로 초대 메일을 전송하였습니다. \n' + emailList)
+      }else {
+        alert('친구 초대를 완료하였습니다.',)
+      }
+    }
+  }
 
   /* ===== Variables ===== */
   const { files } = currentRoomInfo ? currentRoomInfo : [];
@@ -286,8 +309,8 @@ const SidePanel = ({
                     >
                       {item.user && (
                         <Card hoverable bodyStyle={{ padding: '12px 10px' }}>
-                          <Avatar>{item.user.user_name[0]}</Avatar>{' '}
-                          {item.user.user_name}
+                          <Avatar>{item?.user?.user_name[0]}</Avatar>{' '}
+                          {item?.user?.user_name}
                         </Card>
                       )}
                     </Col>
@@ -488,7 +511,8 @@ const SidePanel = ({
               size={'large'}
               type="primary"
               style={{ width: '69%' }}
-              onClick={() => setAddMemberModal(false)}
+              // onClick={() => setAddMemberModal(false)}
+              onClick ={handleInviteFriend}
               disabled={inviteList.length < 1}
             >
               ({inviteList.length})명 완료
@@ -500,7 +524,7 @@ const SidePanel = ({
           새 멤버
         </Title>
         <Select
-          mode="multiple"
+          mode="tags"
           allowClear
           style={{
             width: '100%',
@@ -509,9 +533,9 @@ const SidePanel = ({
           defaultValue={[]}
           onChange={handleChange}
         >
-          {userList.map((item) => (
+          {/* {userList.map((item) => (
             <Option key={`${item.user_id}`}>{item.user_name}</Option>
-          ))}
+          ))} */}
         </Select>
         {/* <Select
           mode="tags"

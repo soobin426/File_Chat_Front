@@ -96,5 +96,11 @@ const API = {
    */
   download: (body) => $http.post(`/download/file`, { body }),
 
+  /**ㄹ
+   * 친구 초대
+   * --
+   */
+  inviteUser: (body) => $http.post(`/invite`, body),
+
 };
 export default API;
