@@ -170,7 +170,7 @@ const SidePanel = ({
     try {
       const response = await API.leaveRoom(room_id);
 
-      window.location.href = '/messenger';
+      window.location.href = '/explorer';
     } catch (error) {
       console.error('Error fetching data:', error);
     }
