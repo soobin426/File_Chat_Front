@@ -13,7 +13,8 @@ export default class ApiManager {
       this.BASE_URL =
         process.env.NODE_ENV === 'development'
           ? `${BACKEND_URL}/api/v1`
-          : 'http://49.50.161.183:3333';
+          // : 'http://3.34.90.66:3333/api/v1';
+          : 'http://localhost:3333/api/v1';
       // ? 'http://localhost:3333/api/v1'
       // ? 'http://localhost:3333/api/v1'
       // 싱글톤 변수 할당
