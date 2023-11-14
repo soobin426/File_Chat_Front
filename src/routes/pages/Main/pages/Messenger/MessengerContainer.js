@@ -435,6 +435,11 @@ const MessengerContainer = (props) => {
         document.body.removeChild(a);
         socket.emit('leaveStorage', connectId)
       })
+
+      socket.on('upload-fail', async (blobForm, fileType, fileName, user_id, room_id) => {
+        //확장 or 모바일이 백그라운드 상태로 설정되어 있을 때 
+        alert('파일 저장 스토리지가 비활성화 상태여서 업로드가 불가합니다.')
+      });
     };
 
     if (!userId) {

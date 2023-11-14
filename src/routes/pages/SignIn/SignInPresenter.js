@@ -10,6 +10,7 @@ import { Form, Input, Button, Divider, Space } from 'antd';
 import { Link, useHistory } from 'react-router-dom';
 // import TITLE from 'assets/svg/title.svg';
 import './SignIn.css';
+import { Naver } from './NaverLogin'
 
 /**
  * [Component] Presenter
@@ -75,6 +76,7 @@ const SignInPresenter = ({ handleLogin, handleSignUp }) => {
                 >
                   회원가입
                 </Button>
+                <Naver />
                 {/* <Button
                   block
                   style={{

@@ -27,11 +27,20 @@ const SiginInContainer = () => {
       MessageAlert.warning('이미 로그인되어 있습니다.');
       history.push('/messenger');
     } // eslint-disable-next-line
+
+    // 네이버로그인
+    const queryParams = new URLSearchParams(window.location.search);
+    const userInfoString = queryParams.get('userInfo');
+
+    if (userInfoString) {
+      // query parameter에 전달된 데이터 파싱
+      const naverUserInfo = JSON.parse(decodeURIComponent(userInfoString));
+      handleLogin(naverUserInfo)
+    }
   }, [userInfo]);
 
   /* Functions */
   const handleLogin = async (userInfo) => {
-    // console.log('userInfo: ', userInfo);
     // return;
     const { status, data } = await API.login(userInfo);
 
